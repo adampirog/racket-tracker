@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal, InvalidOperation
 
 
 def format_date(value: date) -> str:
@@ -37,3 +38,47 @@ def format_relative_date(value: date, *, today: date | None = None) -> str:
         return "1 year ago"
 
     return f"{days // 365} years ago"
+
+
+def normalize_gauge(value: str) -> str:
+    value = value.strip().lower()
+
+    if value.endswith("mm"):
+        value = value[:-2].strip()
+
+    value = value.replace(",", ".")
+
+    if not value:
+        return ""
+
+    try:
+        gauge = Decimal(value)
+    except InvalidOperation as exc:
+        raise ValueError("Invalid gauge") from exc
+
+    if not gauge.is_finite() or gauge <= 0:
+        raise ValueError("Invalid gauge")
+
+    normalized = format(gauge.normalize(), "f")
+
+    if "." not in normalized:
+        return f"{normalized}.00"
+
+    whole, fraction = normalized.split(".", maxsplit=1)
+
+    if len(fraction) == 1:
+        return f"{whole}.{fraction}0"
+
+    return normalized
+
+
+def format_gauge(value: str) -> str:
+    if not value:
+        return ""
+
+    try:
+        return f"{normalize_gauge(value)} mm"
+    except ValueError:
+        # Keeps legacy/dev data displayable.
+        value = value.strip()
+        return value if value.lower().endswith("mm") else f"{value} mm"

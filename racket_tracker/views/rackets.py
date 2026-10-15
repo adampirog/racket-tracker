@@ -3,7 +3,7 @@ from collections.abc import Callable, Sequence
 import flet as ft
 
 from racket_tracker.data.models import Racket
-from racket_tracker.formatting import format_date, format_relative_date
+from racket_tracker.formatting import format_date, format_gauge, format_relative_date
 from racket_tracker.theme import (
     CARD_RADIUS,
     GRIP_ICON_BG,
@@ -190,7 +190,7 @@ def _build_string_card(racket: Racket, *, on_click: Callable[[Racket], None]) ->
     value = change.string
 
     if change.gauge:
-        value = f"{value} {change.gauge}"
+        value = f"{value} {format_gauge(change.gauge)}"
 
     return _build_equipment_card(
         title="Strings",

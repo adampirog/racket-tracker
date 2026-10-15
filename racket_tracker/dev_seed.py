@@ -46,7 +46,7 @@ def seed_demo_data(database: Database) -> None:
                 StringChange(
                     racket_id=match_racket.id,
                     string="Babolat RPM Blast",
-                    gauge="1.25 mm",
+                    gauge="1.25",
                     changed_on=date(2026, 10, 8),
                 ),
                 GripChange(

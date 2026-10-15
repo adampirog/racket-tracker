@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
 from typing import Literal
@@ -5,7 +6,7 @@ from typing import Literal
 import flet as ft
 
 from racket_tracker.data.models import Racket
-from racket_tracker.formatting import format_date
+from racket_tracker.formatting import format_date, format_gauge
 from racket_tracker.theme import (
     CARD_RADIUS,
     GRIP_ICON_BG,
@@ -31,11 +32,11 @@ class HistoryEntry:
     notes: str
 
 
-def build_history_view(*, rackets: list[Racket]) -> ft.Control:
+def build_history_view(*, rackets: list[Racket], on_open_rackets: Callable[[], None]) -> ft.Control:
     entries = _build_history_entries(rackets)
 
     if not entries:
-        return _build_empty_history()
+        return _build_empty_history(on_open_rackets=on_open_rackets)
 
     return ft.Column(
         expand=True,
@@ -58,7 +59,7 @@ def _build_history_entries(rackets: list[Racket]) -> list[HistoryEntry]:
             value = change.string
 
             if change.gauge:
-                value = f"{value} {change.gauge}"
+                value = f"{value} {format_gauge(change.gauge)}"
 
             entries.append(
                 HistoryEntry(
@@ -144,7 +145,7 @@ def _build_history_card(entry: HistoryEntry) -> ft.Control:
     )
 
 
-def _build_empty_history() -> ft.Control:
+def _build_empty_history(*, on_open_rackets: Callable[[], None]) -> ft.Control:
     return ft.Column(
         expand=True,
         controls=[
@@ -166,6 +167,12 @@ def _build_empty_history() -> ft.Control:
                             size=14,
                             color=TEXT_SECONDARY,
                             text_align=ft.TextAlign.CENTER,
+                        ),
+                        ft.Container(height=4),
+                        ft.Button(
+                            content="Go to rackets",
+                            icon=ft.Icons.SPORTS_TENNIS,
+                            on_click=lambda _: on_open_rackets(),
                         ),
                     ],
                 ),

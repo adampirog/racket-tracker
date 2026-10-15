@@ -29,6 +29,7 @@ def build_racket_dialog(
         value=racket.name if racket else "",
         autofocus=True,
         max_length=100,
+        capitalization=ft.TextCapitalization.SENTENCES,
     )
 
     brand = ft.TextField(
@@ -36,6 +37,8 @@ def build_racket_dialog(
         hint_text="e.g. Babolat",
         value=racket.brand if racket else "",
         max_length=100,
+        capitalization=ft.TextCapitalization.WORDS,
+        autocorrect=False,
     )
 
     model = ft.TextField(
@@ -43,6 +46,8 @@ def build_racket_dialog(
         hint_text="e.g. Pure Drive (2021)",
         value=racket.model if racket else "",
         max_length=100,
+        capitalization=ft.TextCapitalization.WORDS,
+        autocorrect=False,
     )
 
     notes = ft.TextField(
@@ -52,6 +57,7 @@ def build_racket_dialog(
         multiline=True,
         min_lines=2,
         max_lines=4,
+        capitalization=ft.TextCapitalization.SENTENCES,
     )
 
     def submit(_: object) -> None:

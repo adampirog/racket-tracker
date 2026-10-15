@@ -1,4 +1,7 @@
+import logging
+
 import flet as ft
+from sqlalchemy.exc import SQLAlchemyError
 
 from racket_tracker.data.models import GripChange, Racket, StringChange
 from racket_tracker.data.repository import RacketRepository
@@ -25,10 +28,14 @@ from racket_tracker.views.racket_form import (
 from racket_tracker.views.rackets import build_rackets_view
 
 
+logger = logging.getLogger(__name__)
+
+
 class RacketTrackerApp:
     def __init__(self, *, page: ft.Page, repository: RacketRepository) -> None:
         self.page = page
         self.repository = repository
+        self.navigation_bar: ft.NavigationBar | None = None
 
         self.rackets: list[Racket] = []
         self.selected_racket_id: int | None = None
@@ -45,6 +52,11 @@ class RacketTrackerApp:
         self._render()
 
         self.page.add(ft.SafeArea(expand=True, content=self.body))
+        self.navigation_bar = self._build_navigation_bar()
+        self.page.navigation_bar = self.navigation_bar
+
+    def _show_rackets_tab(self) -> None:
+        self._set_tab(0)
 
     def _configure_page(self) -> None:
         self.page.title = "Racket Tracker"
@@ -70,8 +82,7 @@ class RacketTrackerApp:
         if event.control.selected_index is None:
             return
 
-        self.selected_tab = event.control.selected_index
-        self._render()
+        self._set_tab(event.control.selected_index)
 
     # ------------------------------------------------------------------
     # Racket CRUD
@@ -83,30 +94,30 @@ class RacketTrackerApp:
         )
 
     def _add_racket(self, values: RacketFormValues) -> None:
-        racket = self.repository.add(
-            Racket(
-                name=values.name,
-                brand=values.brand,
-                model=values.model,
-                notes=values.notes,
+        try:
+            racket = self.repository.add(
+                Racket(
+                    name=values.name,
+                    brand=values.brand,
+                    model=values.model,
+                    notes=values.notes,
+                )
             )
-        )
+        except SQLAlchemyError:
+            logger.exception("Failed to save racket change")
+            self._show_message("Couldn't save change. Please try again.")
+            return
 
         self.page.pop_dialog()
 
-        self._reload_rackets(
-            preferred_id=racket.id,
-        )
+        self._reload_rackets(preferred_id=racket.id)
         self._render()
 
     def _show_edit_racket(self, racket: Racket) -> None:
         self.page.show_dialog(
             build_racket_dialog(
                 racket=racket,
-                on_submit=lambda values: self._update_racket(
-                    racket.id,
-                    values,
-                ),
+                on_submit=lambda values: self._update_racket(racket.id, values),
                 on_delete=lambda: self._show_delete_confirmation(racket),
                 on_cancel=self._close_dialog,
             )
@@ -177,8 +188,20 @@ class RacketTrackerApp:
             )
 
     def _render_history(self) -> None:
-        self.body.content = build_history_view(rackets=self.rackets)
+        self.body.content = build_history_view(
+            rackets=self.rackets,
+            on_open_rackets=self._show_rackets_tab,
+        )
         self.page.floating_action_button = None
+
+    def _set_tab(self, index: int) -> None:
+        self.selected_tab = index
+
+        if self.navigation_bar is not None:
+            self.navigation_bar.selected_index = index
+
+        self._render()
+        self.page.update()
 
     def _render_rackets(self) -> None:
         self.body.content = build_rackets_view(
@@ -199,23 +222,20 @@ class RacketTrackerApp:
             on_click=lambda _: self._show_add_racket(),
         )
 
-    def _render_placeholder(
-        self,
-        *,
-        title: str,
-        message: str,
-        icon: ft.IconData,
-    ) -> None:
-        self.body.content = ft.Column(
+    def _render_placeholder(self, *, title: str, message: str, icon: ft.IconData) -> None:
+        self.body.content = ft.Container(
             expand=True,
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=12,
-            controls=[
-                ft.Icon(icon, size=48, color=PRIMARY),
-                ft.Text(title, size=24, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
-                ft.Text(message, size=14, color=TEXT_SECONDARY, text_align=ft.TextAlign.CENTER),
-            ],
+            alignment=ft.Alignment.CENTER,
+            content=ft.Column(
+                tight=True,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                spacing=12,
+                controls=[
+                    ft.Icon(icon, size=48, color=PRIMARY),
+                    ft.Text(title, size=24, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
+                    ft.Text(message, size=14, color=TEXT_SECONDARY, text_align=ft.TextAlign.CENTER),
+                ],
+            ),
         )
 
         self.page.floating_action_button = None
@@ -253,63 +273,63 @@ class RacketTrackerApp:
     def _show_string_change(self, racket: Racket) -> None:
         self.page.show_dialog(
             build_string_change_dialog(
-                racket_name=racket.name,
+                racket=racket,
                 show_dialog=self.page.show_dialog,
-                on_submit=lambda values: self._add_string_change(
-                    racket.id,
-                    values,
-                ),
+                on_submit=lambda values: self._add_string_change(racket.id, values),
                 on_cancel=self._close_dialog,
             )
         )
 
     def _add_string_change(self, racket_id: int, values: StringChangeFormValues) -> None:
-        self.repository.add_string_change(
-            StringChange(
-                racket_id=racket_id,
-                string=values.string,
-                gauge=values.gauge,
-                changed_on=values.changed_on,
-                notes=values.notes,
+        try:
+            self.repository.add_string_change(
+                StringChange(
+                    racket_id=racket_id,
+                    string=values.string,
+                    gauge=values.gauge,
+                    changed_on=values.changed_on,
+                    notes=values.notes,
+                )
             )
-        )
+        except SQLAlchemyError:
+            logger.exception("Failed to save string change")
+            self._show_message("Couldn't save change. Please try again.")
+            return
 
         self.page.pop_dialog()
 
-        self._reload_rackets(
-            preferred_id=racket_id,
-        )
+        self._reload_rackets(preferred_id=racket_id)
         self._render()
 
     def _show_grip_change(self, racket: Racket) -> None:
         self.page.show_dialog(
             build_grip_change_dialog(
-                racket_name=racket.name,
+                racket=racket,
                 show_dialog=self.page.show_dialog,
-                on_submit=lambda values: self._add_grip_change(
-                    racket.id,
-                    values,
-                ),
+                on_submit=lambda values: self._add_grip_change(racket.id, values),
                 on_cancel=self._close_dialog,
             )
         )
 
     def _add_grip_change(self, racket_id: int, values: GripChangeFormValues) -> None:
-        self.repository.add_grip_change(
-            GripChange(
-                racket_id=racket_id,
-                grip=values.grip,
-                color=values.color,
-                changed_on=values.changed_on,
-                notes=values.notes,
+        try:
+            self.repository.add_grip_change(
+                GripChange(
+                    racket_id=racket_id,
+                    grip=values.grip,
+                    color=values.color,
+                    changed_on=values.changed_on,
+                    notes=values.notes,
+                )
             )
-        )
+        except SQLAlchemyError:
+            logger.exception("Failed to save grip change")
+            self._show_message("Couldn't save change. Please try again.")
+            return
 
         self.page.pop_dialog()
 
-        self._reload_rackets(
-            preferred_id=racket_id,
-        )
+        self._reload_rackets(preferred_id=racket_id)
         self._render()
 
     def _close_dialog(self) -> None:
