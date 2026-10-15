@@ -36,17 +36,10 @@ def main(page: ft.Page) -> None:
     selected_racket_id: int | None = rackets[0].id if rackets else None
     selected_tab = 0
 
-    body = ft.Container(
-        expand=True,
-        padding=PAGE_PADDING,
-    )
+    body = ft.Container(expand=True, padding=PAGE_PADDING)
 
     def show_message(message: str) -> None:
-        page.show_dialog(
-            ft.SnackBar(
-                content=ft.Text(message),
-            )
-        )
+        page.show_dialog(ft.SnackBar(content=ft.Text(message)))
 
     def select_racket(racket_id: int) -> None:
         nonlocal selected_racket_id
@@ -74,23 +67,9 @@ def main(page: ft.Page) -> None:
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
             spacing=12,
             controls=[
-                ft.Icon(
-                    icon,
-                    size=48,
-                    color=PRIMARY,
-                ),
-                ft.Text(
-                    title,
-                    size=24,
-                    weight=ft.FontWeight.BOLD,
-                    color=TEXT_PRIMARY,
-                ),
-                ft.Text(
-                    message,
-                    size=14,
-                    color=TEXT_SECONDARY,
-                    text_align=ft.TextAlign.CENTER,
-                ),
+                ft.Icon(icon, size=48, color=PRIMARY),
+                ft.Text(title, size=24, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
+                ft.Text(message, size=14, color=TEXT_SECONDARY, text_align=ft.TextAlign.CENTER),
             ],
         )
 
@@ -133,31 +112,20 @@ def main(page: ft.Page) -> None:
         on_change=select_tab,
         destinations=[
             ft.NavigationBarDestination(
-                label="Rackets",
-                icon=ft.Icons.SPORTS_TENNIS,
-                selected_icon=ft.Icons.SPORTS_TENNIS,
+                label="Rackets", icon=ft.Icons.SPORTS_TENNIS, selected_icon=ft.Icons.SPORTS_TENNIS
             ),
             ft.NavigationBarDestination(
-                label="History",
-                icon=ft.Icons.HISTORY_OUTLINED,
-                selected_icon=ft.Icons.HISTORY,
+                label="History", icon=ft.Icons.HISTORY_OUTLINED, selected_icon=ft.Icons.HISTORY
             ),
             ft.NavigationBarDestination(
-                label="Summary",
-                icon=ft.Icons.BAR_CHART_OUTLINED,
-                selected_icon=ft.Icons.BAR_CHART,
+                label="Summary", icon=ft.Icons.BAR_CHART_OUTLINED, selected_icon=ft.Icons.BAR_CHART
             ),
         ],
     )
 
     render()
 
-    page.add(
-        ft.SafeArea(
-            expand=True,
-            content=body,
-        )
-    )
+    page.add(ft.SafeArea(expand=True, content=body))
 
 
 if __name__ == "__main__":

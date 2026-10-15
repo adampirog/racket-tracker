@@ -39,64 +39,37 @@ def build_rackets_view(
         ),
     ]
 
-    selected_racket = _find_selected_racket(
-        rackets=rackets,
-        selected_racket_id=selected_racket_id,
-    )
+    selected_racket = _find_selected_racket(rackets=rackets, selected_racket_id=selected_racket_id)
 
     if selected_racket is None:
-        controls.append(
-            _build_empty_rackets_state(
-                on_add_racket=on_add_racket,
-            )
-        )
+        controls.append(_build_empty_rackets_state(on_add_racket=on_add_racket))
     else:
         controls.extend(
             [
-                _build_racket_card(
-                    racket=selected_racket,
-                    on_edit=on_edit_racket,
-                ),
+                _build_racket_card(racket=selected_racket, on_edit=on_edit_racket),
                 _build_string_card(selected_racket),
                 _build_grip_card(selected_racket),
             ]
         )
 
-    return ft.Column(
-        expand=True,
-        scroll=ft.ScrollMode.AUTO,
-        spacing=16,
-        controls=controls,
-    )
+    return ft.Column(expand=True, scroll=ft.ScrollMode.AUTO, spacing=16, controls=controls)
 
 
 def _find_selected_racket(
-    *,
-    rackets: Sequence[Racket],
-    selected_racket_id: int | None,
+    *, rackets: Sequence[Racket], selected_racket_id: int | None
 ) -> Racket | None:
     if selected_racket_id is None:
         return None
 
-    return next(
-        (racket for racket in rackets if racket.id == selected_racket_id),
-        None,
-    )
+    return next((racket for racket in rackets if racket.id == selected_racket_id), None)
 
 
-def _build_header(
-    on_settings: Callable[[], None],
-) -> ft.Control:
+def _build_header(on_settings: Callable[[], None]) -> ft.Control:
     return ft.Row(
         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
         vertical_alignment=ft.CrossAxisAlignment.CENTER,
         controls=[
-            ft.Text(
-                "Racket Tracker",
-                size=28,
-                weight=ft.FontWeight.BOLD,
-                color=TEXT_PRIMARY,
-            ),
+            ft.Text("Racket Tracker", size=28, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
             ft.IconButton(
                 icon=ft.Icons.SETTINGS_OUTLINED,
                 tooltip="Settings",
@@ -127,25 +100,16 @@ def _build_racket_selector(
             bgcolor=SURFACE_MUTED,
             border_radius=12,
             content=ft.IconButton(
-                icon=ft.Icons.ADD,
-                tooltip="Add racket",
-                on_click=lambda _: on_add_racket(),
+                icon=ft.Icons.ADD, tooltip="Add racket", on_click=lambda _: on_add_racket()
             ),
         )
     )
 
-    return ft.Row(
-        controls=controls,
-        spacing=8,
-        scroll=ft.ScrollMode.HIDDEN,
-    )
+    return ft.Row(controls=controls, spacing=8, scroll=ft.ScrollMode.HIDDEN)
 
 
 def _build_racket_chip(
-    *,
-    racket: Racket,
-    selected: bool,
-    on_select_racket: Callable[[int], None],
+    *, racket: Racket, selected: bool, on_select_racket: Callable[[int], None]
 ) -> ft.Control:
     def handle_select(_: ft.Event[ft.Chip]) -> None:
         if racket.id is not None:
@@ -162,11 +126,7 @@ def _build_racket_chip(
     )
 
 
-def _build_racket_card(
-    *,
-    racket: Racket,
-    on_edit: Callable[[], None],
-) -> ft.Control:
+def _build_racket_card(*, racket: Racket, on_edit: Callable[[], None]) -> ft.Control:
     model_label = f"{racket.brand} {racket.model}" if racket.brand else racket.model
 
     return ft.Container(
@@ -183,27 +143,16 @@ def _build_racket_card(
                     border_radius=14,
                     bgcolor=SURFACE,
                     alignment=ft.Alignment.CENTER,
-                    content=ft.Icon(
-                        ft.Icons.SPORTS_TENNIS,
-                        size=58,
-                        color=PRIMARY,
-                    ),
+                    content=ft.Icon(ft.Icons.SPORTS_TENNIS, size=58, color=PRIMARY),
                 ),
                 ft.Column(
                     expand=True,
                     spacing=5,
                     controls=[
                         ft.Text(
-                            racket.name,
-                            size=20,
-                            weight=ft.FontWeight.BOLD,
-                            color=TEXT_PRIMARY,
+                            racket.name, size=20, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY
                         ),
-                        ft.Text(
-                            model_label,
-                            size=14,
-                            color=TEXT_SECONDARY,
-                        ),
+                        ft.Text(model_label, size=14, color=TEXT_SECONDARY),
                         ft.Container(height=14),
                         ft.Row(
                             alignment=ft.MainAxisAlignment.END,
@@ -222,9 +171,7 @@ def _build_racket_card(
     )
 
 
-def _build_string_card(
-    racket: Racket,
-) -> ft.Control:
+def _build_string_card(racket: Racket) -> ft.Control:
     change = racket.current_string
 
     if change is None:
@@ -253,9 +200,7 @@ def _build_string_card(
     )
 
 
-def _build_grip_card(
-    racket: Racket,
-) -> ft.Control:
+def _build_grip_card(racket: Racket) -> ft.Control:
     change = racket.current_grip
 
     if change is None:
@@ -313,57 +258,27 @@ def _build_equipment_card(
                     expand=True,
                     spacing=3,
                     controls=[
-                        ft.Text(
-                            title,
-                            size=15,
-                            weight=ft.FontWeight.BOLD,
-                            color=TEXT_PRIMARY,
-                        ),
-                        ft.Text(
-                            value,
-                            size=14,
-                            color=TEXT_PRIMARY,
-                        ),
+                        ft.Text(title, size=15, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
+                        ft.Text(value, size=14, color=TEXT_PRIMARY),
                         ft.Container(height=4),
-                        ft.Text(
-                            action_label,
-                            size=12,
-                            color=TEXT_SECONDARY,
-                        ),
+                        ft.Text(action_label, size=12, color=TEXT_SECONDARY),
                         ft.Row(
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                             controls=[
-                                ft.Text(
-                                    date,
-                                    size=13,
-                                    color=TEXT_PRIMARY,
-                                ),
-                                ft.Text(
-                                    relative_date,
-                                    size=12,
-                                    color=TEXT_SECONDARY,
-                                ),
+                                ft.Text(date, size=13, color=TEXT_PRIMARY),
+                                ft.Text(relative_date, size=12, color=TEXT_SECONDARY),
                             ],
                         ),
                     ],
                 ),
-                ft.Icon(
-                    ft.Icons.CHEVRON_RIGHT,
-                    color=TEXT_SECONDARY,
-                    size=20,
-                ),
+                ft.Icon(ft.Icons.CHEVRON_RIGHT, color=TEXT_SECONDARY, size=20),
             ],
         ),
     )
 
 
 def _build_empty_equipment_card(
-    *,
-    title: str,
-    message: str,
-    icon: ft.IconData,
-    icon_bg: str,
-    icon_color: str,
+    *, title: str, message: str, icon: ft.IconData, icon_bg: str, icon_color: str
 ) -> ft.Control:
     return ft.Container(
         bgcolor=SURFACE,
@@ -383,53 +298,28 @@ def _build_empty_equipment_card(
                     expand=True,
                     spacing=3,
                     controls=[
-                        ft.Text(
-                            title,
-                            size=15,
-                            weight=ft.FontWeight.BOLD,
-                            color=TEXT_PRIMARY,
-                        ),
-                        ft.Text(
-                            message,
-                            size=14,
-                            color=TEXT_SECONDARY,
-                        ),
+                        ft.Text(title, size=15, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
+                        ft.Text(message, size=14, color=TEXT_SECONDARY),
                     ],
                 ),
-                ft.Icon(
-                    ft.Icons.CHEVRON_RIGHT,
-                    color=TEXT_SECONDARY,
-                    size=20,
-                ),
+                ft.Icon(ft.Icons.CHEVRON_RIGHT, color=TEXT_SECONDARY, size=20),
             ],
         ),
     )
 
 
-def _build_equipment_icon(
-    *,
-    icon: ft.IconData,
-    background: str,
-    color: str,
-) -> ft.Control:
+def _build_equipment_icon(*, icon: ft.IconData, background: str, color: str) -> ft.Control:
     return ft.Container(
         width=44,
         height=44,
         border_radius=22,
         bgcolor=background,
         alignment=ft.Alignment.CENTER,
-        content=ft.Icon(
-            icon,
-            color=color,
-            size=23,
-        ),
+        content=ft.Icon(icon, color=color, size=23),
     )
 
 
-def _build_empty_rackets_state(
-    *,
-    on_add_racket: Callable[[], None],
-) -> ft.Control:
+def _build_empty_rackets_state(*, on_add_racket: Callable[[], None]) -> ft.Control:
     return ft.Container(
         expand=True,
         alignment=ft.Alignment.CENTER,
@@ -445,18 +335,9 @@ def _build_empty_rackets_state(
                     border_radius=38,
                     bgcolor=PRIMARY_SOFT,
                     alignment=ft.Alignment.CENTER,
-                    content=ft.Icon(
-                        ft.Icons.SPORTS_TENNIS,
-                        size=38,
-                        color=PRIMARY,
-                    ),
+                    content=ft.Icon(ft.Icons.SPORTS_TENNIS, size=38, color=PRIMARY),
                 ),
-                ft.Text(
-                    "No rackets yet",
-                    size=20,
-                    weight=ft.FontWeight.BOLD,
-                    color=TEXT_PRIMARY,
-                ),
+                ft.Text("No rackets yet", size=20, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
                 ft.Text(
                     "Add your first racket to start tracking strings and grips.",
                     size=14,
@@ -465,9 +346,7 @@ def _build_empty_rackets_state(
                 ),
                 ft.Container(height=4),
                 ft.Button(
-                    content="Add racket",
-                    icon=ft.Icons.ADD,
-                    on_click=lambda _: on_add_racket(),
+                    content="Add racket", icon=ft.Icons.ADD, on_click=lambda _: on_add_racket()
                 ),
             ],
         ),
