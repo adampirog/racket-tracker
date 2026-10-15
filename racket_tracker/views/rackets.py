@@ -27,8 +27,11 @@ def build_rackets_view(
     on_select_racket: Callable[[int], None],
     on_add_racket: Callable[[], None],
     on_edit_racket: Callable[[Racket], None],
+    on_string_change: Callable[[Racket], None],
+    on_grip_change: Callable[[Racket], None],
     on_settings: Callable[[], None],
 ) -> ft.Control:
+
     controls: list[ft.Control] = [
         _build_header(on_settings),
         _build_racket_selector(
@@ -47,8 +50,8 @@ def build_rackets_view(
         controls.extend(
             [
                 _build_racket_card(racket=selected_racket, on_edit=on_edit_racket),
-                _build_string_card(selected_racket),
-                _build_grip_card(selected_racket),
+                _build_string_card(selected_racket, on_click=on_string_change),
+                _build_grip_card(selected_racket, on_click=on_grip_change),
             ]
         )
 
@@ -171,7 +174,7 @@ def _build_racket_card(*, racket: Racket, on_edit: Callable[[Racket], None]) -> 
     )
 
 
-def _build_string_card(racket: Racket) -> ft.Control:
+def _build_string_card(racket: Racket, *, on_click: Callable[[Racket], None]) -> ft.Control:
     change = racket.current_string
 
     if change is None:
@@ -181,6 +184,7 @@ def _build_string_card(racket: Racket) -> ft.Control:
             icon=ft.Icons.REPEAT,
             icon_bg=STRING_ICON_BG,
             icon_color=PRIMARY,
+            on_click=lambda: on_click(racket),
         )
 
     value = change.string
@@ -197,10 +201,11 @@ def _build_string_card(racket: Racket) -> ft.Control:
         icon=ft.Icons.REPEAT,
         icon_bg=STRING_ICON_BG,
         icon_color=PRIMARY,
+        on_click=lambda: on_click(racket),
     )
 
 
-def _build_grip_card(racket: Racket) -> ft.Control:
+def _build_grip_card(racket: Racket, *, on_click: Callable[[Racket], None]) -> ft.Control:
     change = racket.current_grip
 
     if change is None:
@@ -210,6 +215,7 @@ def _build_grip_card(racket: Racket) -> ft.Control:
             icon=ft.Icons.BACK_HAND_OUTLINED,
             icon_bg=GRIP_ICON_BG,
             icon_color=SECONDARY,
+            on_click=lambda: on_click(racket),
         )
 
     value = change.grip
@@ -226,6 +232,7 @@ def _build_grip_card(racket: Racket) -> ft.Control:
         icon=ft.Icons.BACK_HAND_OUTLINED,
         icon_bg=GRIP_ICON_BG,
         icon_color=SECONDARY,
+        on_click=lambda: on_click(racket),
     )
 
 
@@ -239,11 +246,14 @@ def _build_equipment_card(
     icon: ft.IconData,
     icon_bg: str,
     icon_color: str,
+    on_click: Callable[[], None],
 ) -> ft.Control:
     return ft.Container(
         bgcolor=SURFACE,
         border_radius=CARD_RADIUS,
         border=ft.Border.all(1, OUTLINE),
+        ink=True,
+        on_click=lambda _: on_click(),
         padding=14,
         content=ft.Row(
             spacing=14,
@@ -278,13 +288,21 @@ def _build_equipment_card(
 
 
 def _build_empty_equipment_card(
-    *, title: str, message: str, icon: ft.IconData, icon_bg: str, icon_color: str
+    *,
+    title: str,
+    message: str,
+    icon: ft.IconData,
+    icon_bg: str,
+    icon_color: str,
+    on_click: Callable[[], None],
 ) -> ft.Control:
     return ft.Container(
         bgcolor=SURFACE,
         border_radius=CARD_RADIUS,
         border=ft.Border.all(1, OUTLINE),
         padding=14,
+        ink=True,
+        on_click=lambda _: on_click(),
         content=ft.Row(
             spacing=14,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,

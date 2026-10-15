@@ -4,7 +4,9 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from sqlalchemy import Engine, create_engine, event
+from sqlalchemy.engine.interfaces import DBAPIConnection
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import ConnectionPoolEntry
 
 from .models import Base
 
@@ -16,19 +18,11 @@ class Database:
     def __init__(self, path: Path) -> None:
         self.path = path
 
-        self.engine = create_engine(
-            f"sqlite:///{path}",
-            connect_args={
-                "check_same_thread": False,
-            },
-        )
+        self.engine = create_engine(f"sqlite:///{path}", connect_args={"check_same_thread": False})
 
         _configure_sqlite(self.engine)
 
-        self._session_factory = sessionmaker(
-            bind=self.engine,
-            expire_on_commit=False,
-        )
+        self._session_factory = sessionmaker(bind=self.engine, expire_on_commit=False)
 
     @classmethod
     def from_app_storage(cls) -> "Database":
@@ -57,10 +51,7 @@ class Database:
 
 def _configure_sqlite(engine: Engine) -> None:
     @event.listens_for(engine, "connect")
-    def set_sqlite_pragma(
-        dbapi_connection: object,
-        _: object,
-    ) -> None:
+    def set_sqlite_pragma(dbapi_connection: DBAPIConnection, _: ConnectionPoolEntry) -> None:
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys = ON")
         cursor.close()

@@ -14,26 +14,20 @@ class Racket(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     name: Mapped[str] = mapped_column(String(100))
-    brand: Mapped[str | None] = mapped_column(String(100))
+    brand: Mapped[str] = mapped_column(String(100), nullable=False, default="")
     model: Mapped[str] = mapped_column(String(100))
-    notes: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
 
     string_changes: Mapped[list["StringChange"]] = relationship(
         back_populates="racket",
         cascade="all, delete-orphan",
-        order_by=lambda: (
-            StringChange.changed_on.desc(),
-            StringChange.id.desc(),
-        ),
+        order_by=lambda: (StringChange.changed_on.desc(), StringChange.id.desc()),
     )
 
     grip_changes: Mapped[list["GripChange"]] = relationship(
         back_populates="racket",
         cascade="all, delete-orphan",
-        order_by=lambda: (
-            GripChange.changed_on.desc(),
-            GripChange.id.desc(),
-        ),
+        order_by=lambda: (GripChange.changed_on.desc(), GripChange.id.desc()),
     )
 
     @property
@@ -50,19 +44,14 @@ class StringChange(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    racket_id: Mapped[int] = mapped_column(
-        ForeignKey("rackets.id", ondelete="CASCADE"),
-        index=True,
-    )
+    racket_id: Mapped[int] = mapped_column(ForeignKey("rackets.id", ondelete="CASCADE"), index=True)
 
     string: Mapped[str] = mapped_column(String(150))
-    gauge: Mapped[str | None] = mapped_column(String(30))
+    gauge: Mapped[str] = mapped_column(String(30), nullable=False, default="")
     changed_on: Mapped[date]
-    notes: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
 
-    racket: Mapped[Racket] = relationship(
-        back_populates="string_changes",
-    )
+    racket: Mapped[Racket] = relationship(back_populates="string_changes")
 
 
 class GripChange(Base):
@@ -70,16 +59,11 @@ class GripChange(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    racket_id: Mapped[int] = mapped_column(
-        ForeignKey("rackets.id", ondelete="CASCADE"),
-        index=True,
-    )
+    racket_id: Mapped[int] = mapped_column(ForeignKey("rackets.id", ondelete="CASCADE"), index=True)
 
     grip: Mapped[str] = mapped_column(String(150))
-    color: Mapped[str | None] = mapped_column(String(50))
+    color: Mapped[str] = mapped_column(String(50), nullable=False, default="")
     changed_on: Mapped[date]
-    notes: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
 
-    racket: Mapped[Racket] = relationship(
-        back_populates="grip_changes",
-    )
+    racket: Mapped[Racket] = relationship(back_populates="grip_changes")

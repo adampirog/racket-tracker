@@ -1,6 +1,6 @@
 import flet as ft
 
-from racket_tracker.data.models import Racket
+from racket_tracker.data.models import GripChange, Racket, StringChange
 from racket_tracker.data.repository import RacketRepository
 from racket_tracker.theme import (
     BACKGROUND,
@@ -9,6 +9,12 @@ from racket_tracker.theme import (
     TEXT_PRIMARY,
     TEXT_SECONDARY,
     build_theme,
+)
+from racket_tracker.views.maintenance_form import (
+    GripChangeFormValues,
+    StringChangeFormValues,
+    build_grip_change_dialog,
+    build_string_change_dialog,
 )
 from racket_tracker.views.racket_form import (
     RacketFormValues,
@@ -80,10 +86,7 @@ class RacketTrackerApp:
 
     def _show_add_racket(self) -> None:
         self.page.show_dialog(
-            build_racket_dialog(
-                on_submit=self._add_racket,
-                on_cancel=self.page.pop_dialog,
-            )
+            build_racket_dialog(on_submit=self._add_racket, on_cancel=self._close_dialog)
         )
 
     def _add_racket(self, values: RacketFormValues) -> None:
@@ -112,7 +115,7 @@ class RacketTrackerApp:
                     values,
                 ),
                 on_delete=lambda: self._show_delete_confirmation(racket),
-                on_cancel=self.page.pop_dialog,
+                on_cancel=self._close_dialog,
             )
         )
 
@@ -139,7 +142,7 @@ class RacketTrackerApp:
             build_delete_racket_dialog(
                 racket=racket,
                 on_confirm=lambda: self._delete_racket(racket.id),
-                on_cancel=self.page.pop_dialog,
+                on_cancel=self._close_dialog,
             )
         )
 
@@ -195,6 +198,8 @@ class RacketTrackerApp:
             on_select_racket=self._select_racket,
             on_add_racket=self._show_add_racket,
             on_edit_racket=self._show_edit_racket,
+            on_string_change=self._show_string_change,
+            on_grip_change=self._show_grip_change,
             on_settings=lambda: self._show_message("Settings will come later."),
         )
 
@@ -251,3 +256,72 @@ class RacketTrackerApp:
 
     def _show_message(self, message: str) -> None:
         self.page.show_dialog(ft.SnackBar(content=ft.Text(message)))
+
+    # ------------------------------------------------------------------
+    # Maintenance logging
+    # ------------------------------------------------------------------
+
+    def _show_string_change(self, racket: Racket) -> None:
+        self.page.show_dialog(
+            build_string_change_dialog(
+                racket_name=racket.name,
+                show_dialog=self.page.show_dialog,
+                on_submit=lambda values: self._add_string_change(
+                    racket.id,
+                    values,
+                ),
+                on_cancel=self._close_dialog,
+            )
+        )
+
+    def _add_string_change(self, racket_id: int, values: StringChangeFormValues) -> None:
+        self.repository.add_string_change(
+            StringChange(
+                racket_id=racket_id,
+                string=values.string,
+                gauge=values.gauge,
+                changed_on=values.changed_on,
+                notes=values.notes,
+            )
+        )
+
+        self.page.pop_dialog()
+
+        self._reload_rackets(
+            preferred_id=racket_id,
+        )
+        self._render()
+
+    def _show_grip_change(self, racket: Racket) -> None:
+        self.page.show_dialog(
+            build_grip_change_dialog(
+                racket_name=racket.name,
+                show_dialog=self.page.show_dialog,
+                on_submit=lambda values: self._add_grip_change(
+                    racket.id,
+                    values,
+                ),
+                on_cancel=self._close_dialog,
+            )
+        )
+
+    def _add_grip_change(self, racket_id: int, values: GripChangeFormValues) -> None:
+        self.repository.add_grip_change(
+            GripChange(
+                racket_id=racket_id,
+                grip=values.grip,
+                color=values.color,
+                changed_on=values.changed_on,
+                notes=values.notes,
+            )
+        )
+
+        self.page.pop_dialog()
+
+        self._reload_rackets(
+            preferred_id=racket_id,
+        )
+        self._render()
+
+    def _close_dialog(self) -> None:
+        self.page.pop_dialog()

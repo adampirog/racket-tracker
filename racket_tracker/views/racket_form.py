@@ -9,9 +9,9 @@ from racket_tracker.data.models import Racket
 @dataclass(frozen=True, slots=True)
 class RacketFormValues:
     name: str
-    brand: str | None
+    brand: str
     model: str
-    notes: str | None
+    notes: str
 
 
 def build_racket_dialog(
@@ -58,24 +58,24 @@ def build_racket_dialog(
         name_value = (name.value or "").strip()
         model_value = (model.value or "").strip()
 
-        name.error_text = None
-        model.error_text = None
+        name.error = None
+        model.error = None
 
         if not name_value:
-            name.error_text = "Name is required"
+            name.error = "Name is required"
 
         if not model_value:
-            model.error_text = "Model is required"
+            model.error = "Model is required"
 
-        if name.error_text or model.error_text:
+        if name.error or model.error:
             return
 
         on_submit(
             RacketFormValues(
                 name=name_value,
-                brand=_optional_text(brand.value),
+                brand=_text(brand.value),
                 model=model_value,
-                notes=_optional_text(notes.value),
+                notes=_text(notes.value),
             )
         )
 
@@ -127,6 +127,5 @@ def build_delete_racket_dialog(
     )
 
 
-def _optional_text(value: str | None) -> str | None:
-    value = (value or "").strip()
-    return value or None
+def _text(value: str | None) -> str:
+    return (value or "").strip()

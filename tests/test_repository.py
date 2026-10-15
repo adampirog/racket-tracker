@@ -8,13 +8,7 @@ from racket_tracker.data.repository import RacketRepository
 
 
 def test_add_and_get_racket(repository: RacketRepository) -> None:
-    racket = repository.add(
-        Racket(
-            name="Match racket",
-            brand="Babolat",
-            model="Pure Drive",
-        )
-    )
+    racket = repository.add(Racket(name="Match racket", brand="Babolat", model="Pure Drive"))
 
     loaded = repository.get(racket.id)
 
