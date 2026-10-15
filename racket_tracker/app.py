@@ -10,6 +10,7 @@ from racket_tracker.theme import (
     TEXT_SECONDARY,
     build_theme,
 )
+from racket_tracker.views.history import build_history_view
 from racket_tracker.views.maintenance_form import (
     GripChangeFormValues,
     StringChangeFormValues,
@@ -25,12 +26,7 @@ from racket_tracker.views.rackets import build_rackets_view
 
 
 class RacketTrackerApp:
-    def __init__(
-        self,
-        *,
-        page: ft.Page,
-        repository: RacketRepository,
-    ) -> None:
+    def __init__(self, *, page: ft.Page, repository: RacketRepository) -> None:
         self.page = page
         self.repository = repository
 
@@ -38,10 +34,7 @@ class RacketTrackerApp:
         self.selected_racket_id: int | None = None
         self.selected_tab = 0
 
-        self.body = ft.Container(
-            expand=True,
-            padding=PAGE_PADDING,
-        )
+        self.body = ft.Container(expand=True, padding=PAGE_PADDING)
 
     def mount(self) -> None:
         self._configure_page()
@@ -130,9 +123,7 @@ class RacketTrackerApp:
 
         self.page.pop_dialog()
 
-        self._reload_rackets(
-            preferred_id=racket_id,
-        )
+        self._reload_rackets(preferred_id=racket_id)
         self._render()
 
     def _show_delete_confirmation(self, racket: Racket) -> None:
@@ -152,9 +143,7 @@ class RacketTrackerApp:
         self.repository.delete(racket_id)
         self.page.pop_dialog()
 
-        self._reload_rackets(
-            preferred_id=replacement_id,
-        )
+        self._reload_rackets(preferred_id=replacement_id)
         self._render()
 
     def _replacement_after_delete(self, racket_id: int) -> int | None:
@@ -179,17 +168,17 @@ class RacketTrackerApp:
         if self.selected_tab == 0:
             self._render_rackets()
         elif self.selected_tab == 1:
-            self._render_placeholder(
-                title="History",
-                message="Your string and grip changes will appear here.",
-                icon=ft.Icons.HISTORY,
-            )
+            self._render_history()
         else:
             self._render_placeholder(
                 title="Summary",
                 message="Statistics and equipment insights will live here.",
                 icon=ft.Icons.BAR_CHART,
             )
+
+    def _render_history(self) -> None:
+        self.body.content = build_history_view(rackets=self.rackets)
+        self.page.floating_action_button = None
 
     def _render_rackets(self) -> None:
         self.body.content = build_rackets_view(
