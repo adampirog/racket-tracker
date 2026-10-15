@@ -65,3 +65,23 @@ class RacketRepository:
             session.add(change)
 
         return change
+
+    def update(
+        self,
+        racket_id: int,
+        *,
+        name: str,
+        model: str,
+        brand: str | None = None,
+        notes: str | None = None,
+    ) -> None:
+        with self.database.transaction() as session:
+            racket = session.get(Racket, racket_id)
+
+            if racket is None:
+                raise LookupError(f"Racket {racket_id} does not exist.")
+
+            racket.name = name
+            racket.brand = brand
+            racket.model = model
+            racket.notes = notes

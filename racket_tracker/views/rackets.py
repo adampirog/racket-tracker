@@ -26,7 +26,7 @@ def build_rackets_view(
     selected_racket_id: int | None,
     on_select_racket: Callable[[int], None],
     on_add_racket: Callable[[], None],
-    on_edit_racket: Callable[[], None],
+    on_edit_racket: Callable[[Racket], None],
     on_settings: Callable[[], None],
 ) -> ft.Control:
     controls: list[ft.Control] = [
@@ -126,7 +126,7 @@ def _build_racket_chip(
     )
 
 
-def _build_racket_card(*, racket: Racket, on_edit: Callable[[], None]) -> ft.Control:
+def _build_racket_card(*, racket: Racket, on_edit: Callable[[Racket], None]) -> ft.Control:
     model_label = f"{racket.brand} {racket.model}" if racket.brand else racket.model
 
     return ft.Container(
@@ -160,7 +160,7 @@ def _build_racket_card(*, racket: Racket, on_edit: Callable[[], None]) -> ft.Con
                                 ft.IconButton(
                                     icon=ft.Icons.EDIT_OUTLINED,
                                     tooltip="Edit racket",
-                                    on_click=lambda _: on_edit(),
+                                    on_click=lambda _: on_edit(racket),
                                 ),
                             ],
                         ),
