@@ -58,9 +58,9 @@ class Database:
                 connection.exec_driver_sql(f"PRAGMA user_version = {SCHEMA_VERSION}")
                 return
 
-            if version > SCHEMA_VERSION:
+            if version != SCHEMA_VERSION:
                 raise RuntimeError(
-                    f"Database schema {version} is newer than supported schema {SCHEMA_VERSION}."
+                    f"Database schema {version} is incompatible with schema {SCHEMA_VERSION}."
                 )
 
 

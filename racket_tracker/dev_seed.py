@@ -13,9 +13,13 @@ def seed_demo_data(database: Database) -> None:
         if racket_count:
             return
 
-        match_racket = Racket(name="Match racket", brand="Babolat", model="Pure Drive (2021)")
-        backup_racket = Racket(name="Backup racket", brand="Babolat", model="Pure Drive (2021)")
-        radical = Racket(name="Radical", brand="Head", model="Radical MP (2023)")
+        match_racket = Racket(
+            name="Match racket", brand="Babolat", model="Pure Drive (2021)", image_id="tfight"
+        )
+        backup_racket = Racket(
+            name="Backup racket", brand="Babolat", model="Pure Drive (2021)", image_id="gravity"
+        )
+        radical = Racket(name="Radical", brand="Head", model="Radical MP (2023)", image_id="aero")
 
         session.add_all([match_racket, backup_racket, radical])
 
@@ -38,7 +42,7 @@ def seed_demo_data(database: Database) -> None:
                 StringChange(
                     racket_id=backup_racket.id,
                     string="Head Lynx Tour",
-                    gauge="1.25 mm",
+                    gauge="1.25",
                     changed_on=date(2026, 9, 15),
                 ),
             ]

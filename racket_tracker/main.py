@@ -10,7 +10,7 @@ from racket_tracker.dev_seed import seed_demo_data
 
 def main(page: ft.Page) -> None:
     database = Database.from_app_storage()
-    database.create_schema()
+    database.migrate()
 
     if os.getenv("RACKET_TRACKER_DEMO_DATA") == "1":
         seed_demo_data(database)
