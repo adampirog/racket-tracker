@@ -18,6 +18,7 @@ from racket_tracker.theme import (
     TEXT_PRIMARY,
     TEXT_SECONDARY,
 )
+from racket_tracker.views.racket_image import build_racket_image
 
 
 def build_rackets_view(
@@ -145,8 +146,9 @@ def _build_racket_card(*, racket: Racket, on_edit: Callable[[Racket], None]) -> 
                     height=130,
                     border_radius=14,
                     bgcolor=SURFACE,
+                    padding=8,
                     alignment=ft.Alignment.CENTER,
-                    content=ft.Icon(ft.Icons.SPORTS_TENNIS, size=58, color=PRIMARY),
+                    content=build_racket_image(racket.image_id, width=76, height=114),
                 ),
                 ft.Column(
                     expand=True,

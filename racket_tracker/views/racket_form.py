@@ -4,6 +4,9 @@ from dataclasses import dataclass
 import flet as ft
 
 from racket_tracker.data.models import Racket
+from racket_tracker.racket_images import (
+    DEFAULT_RACKET_IMAGE_ID,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -12,6 +15,7 @@ class RacketFormValues:
     brand: str
     model: str
     notes: str
+    image_id: str | None
 
 
 def build_racket_dialog(
@@ -75,6 +79,8 @@ def build_racket_dialog(
 
         if name.error or model.error:
             return
+
+        selected_image_id = racket.image_id if racket is not None else DEFAULT_RACKET_IMAGE_ID
 
         on_submit(
             RacketFormValues(

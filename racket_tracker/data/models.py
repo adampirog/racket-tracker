@@ -3,6 +3,8 @@ from datetime import date
 from sqlalchemy import ForeignKey, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
+from racket_tracker.racket_images import DEFAULT_RACKET_IMAGE_ID
+
 
 class Base(DeclarativeBase):
     pass
@@ -17,6 +19,9 @@ class Racket(Base):
     brand: Mapped[str] = mapped_column(String(100), nullable=False, default="")
     model: Mapped[str] = mapped_column(String(100))
     notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    image_id: Mapped[str | None] = mapped_column(
+        String(50), nullable=True, default=DEFAULT_RACKET_IMAGE_ID
+    )
 
     string_changes: Mapped[list["StringChange"]] = relationship(
         back_populates="racket",
