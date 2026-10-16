@@ -7,6 +7,7 @@ from racket_tracker.data.models import Racket
 from racket_tracker.racket_images import (
     DEFAULT_RACKET_IMAGE_ID,
     RACKET_IMAGES,
+    is_racket_image_id,
 )
 from racket_tracker.theme import (
     OUTLINE,
@@ -211,7 +212,7 @@ def _build_image_picker(*, initial_image_id: str) -> tuple[ft.Control, Callable[
 
 
 def _initial_image_id(racket: Racket | None) -> str:
-    if racket is not None and racket.image_id and racket.image_id in RACKET_IMAGES:
+    if racket is not None and is_racket_image_id(racket.image_id):
         return racket.image_id
 
     return DEFAULT_RACKET_IMAGE_ID

@@ -86,18 +86,26 @@ def test_delete_racket_removes_its_history(
 
 
 def test_update_racket(repository: RacketRepository) -> None:
-    racket = repository.add(Racket(name="Old name", brand="Babolat", model="Pure Drive"))
+    racket = repository.add(
+        Racket(name="Old name", brand="Babolat", model="Pure Drive", image_id="aero")
+    )
 
     repository.update(
-        racket.id, name="Match racket", brand="Head", model="Radical MP", notes="Main racket"
+        racket.id,
+        name="Match racket",
+        brand="Head",
+        model="Radical MP",
+        image_id="gravity",
+        notes="Main racket",
     )
 
     loaded = repository.get(racket.id)
 
     assert loaded is not None
-    assert (loaded.name, loaded.brand, loaded.model, loaded.notes) == (
+    assert (loaded.name, loaded.brand, loaded.model, loaded.image_id, loaded.notes) == (
         "Match racket",
         "Head",
         "Radical MP",
+        "gravity",
         "Main racket",
     )
