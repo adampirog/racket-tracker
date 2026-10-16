@@ -74,24 +74,25 @@ class RacketTrackerApp:
         self.page.bgcolor = BACKGROUND
         self.page.padding = 0
 
-    def _reload_rackets(self, *, preferred_id: int | None = None) -> None:
+    def _reload_rackets(self) -> None:
+        selected_id = self.selected_racket_id
+
         self.rackets = self.repository.get_all()
         racket_ids = {racket.id for racket in self.rackets}
 
-        if preferred_id in racket_ids:
-            self.selected_racket_id = preferred_id
-        elif self.selected_racket_id not in racket_ids:
+        if selected_id not in racket_ids:
             self.selected_racket_id = self.rackets[0].id if self.rackets else None
 
     def _refresh_after_write(self, *, preferred_id: int | None, success_message: str) -> None:
         try:
-            self._reload_rackets(
-                preferred_id=preferred_id,
-            )
+            self._reload_rackets()
         except SQLAlchemyError:
             logger.exception("Failed to reload rackets after write")
             self._show_message("Saved, but couldn't refresh the app. Please restart it.")
             return
+
+        if preferred_id is not None and any(racket.id == preferred_id for racket in self.rackets):
+            self.selected_racket_id = preferred_id
 
         self._render()
         self._show_message(success_message)
@@ -114,9 +115,6 @@ class RacketTrackerApp:
 
         self._render()
         self.page.update()
-
-    def _show_rackets_tab(self) -> None:
-        self._set_tab(0)
 
     # ------------------------------------------------------------------
     # Racket CRUD
@@ -318,10 +316,7 @@ class RacketTrackerApp:
         )
 
     def _render_history(self) -> None:
-        self.body.content = build_history_view(
-            rackets=self.rackets, on_open_rackets=self._show_rackets_tab
-        )
-
+        self.body.content = build_history_view(rackets=self.rackets)
         self.page.floating_action_button = None
 
     def _render_placeholder(self, *, title: str, message: str, icon: ft.IconData) -> None:

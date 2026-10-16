@@ -9,15 +9,15 @@ class RacketImage:
 
 
 RACKET_IMAGES = (
-    RacketImage(id="tfight", label="Tecnifibre TFight 305S", path="rackets/tfight.webp"),
+    RacketImage(id="tfight", label="TFight", path="rackets/tfight.webp"),
     RacketImage(id="vcore", label="Yonex VCORE", path="rackets/vcore.webp"),
     RacketImage(id="gravity", label="Head Gravity", path="rackets/gravity.webp"),
-    RacketImage(id="aero", label="Babolat Pure Aero", path="rackets/aero.webp"),
+    RacketImage(id="aero", label="Pure Aero", path="rackets/aero.webp"),
 )
 
 RACKET_IMAGES_BY_ID = {image.id: image for image in RACKET_IMAGES}
 
-DEFAULT_RACKET_IMAGE_ID = "gravity"
+DEFAULT_RACKET_IMAGE_ID = "tfight"
 
 
 def get_racket_image(image_id: str) -> RacketImage:

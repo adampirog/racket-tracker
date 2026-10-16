@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
 from typing import Literal
@@ -32,23 +31,11 @@ class HistoryEntry:
     notes: str
 
 
-def build_history_view(*, rackets: list[Racket], on_open_rackets: Callable[[], None]) -> ft.Control:
+def build_history_view(*, rackets: list[Racket]):
     entries = _build_history_entries(rackets)
 
     if not entries:
-        return _build_empty_history(on_open_rackets=on_open_rackets)
-
-    return ft.Column(
-        expand=True,
-        scroll=ft.ScrollMode.AUTO,
-        spacing=12,
-        controls=[
-            ft.Text("History", size=28, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
-            ft.Text("String and grip changes across your rackets.", size=14, color=TEXT_SECONDARY),
-            ft.Container(height=4),
-            *[_build_history_card(entry) for entry in entries],
-        ],
-    )
+        return _build_empty_history()
 
 
 def _build_history_entries(rackets: list[Racket]) -> list[HistoryEntry]:
@@ -145,7 +132,7 @@ def _build_history_card(entry: HistoryEntry) -> ft.Control:
     )
 
 
-def _build_empty_history(*, on_open_rackets: Callable[[], None]) -> ft.Control:
+def _build_empty_history() -> ft.Control:
     return ft.Column(
         expand=True,
         controls=[
@@ -167,12 +154,6 @@ def _build_empty_history(*, on_open_rackets: Callable[[], None]) -> ft.Control:
                             size=14,
                             color=TEXT_SECONDARY,
                             text_align=ft.TextAlign.CENTER,
-                        ),
-                        ft.Container(height=4),
-                        ft.Button(
-                            content="Go to rackets",
-                            icon=ft.Icons.SPORTS_TENNIS,
-                            on_click=lambda _: on_open_rackets(),
                         ),
                     ],
                 ),

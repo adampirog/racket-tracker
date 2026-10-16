@@ -19,8 +19,8 @@ class Racket(Base):
     brand: Mapped[str] = mapped_column(String(100), nullable=False, default="")
     model: Mapped[str] = mapped_column(String(100))
     notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
-    image_id: Mapped[str | None] = mapped_column(
-        String(50), nullable=True, default=DEFAULT_RACKET_IMAGE_ID
+    image_id: Mapped[str] = mapped_column(
+        String(50), nullable=False, default=DEFAULT_RACKET_IMAGE_ID
     )
 
     string_changes: Mapped[list["StringChange"]] = relationship(

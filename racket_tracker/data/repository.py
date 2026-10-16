@@ -66,7 +66,7 @@ class RacketRepository:
         *,
         name: str,
         model: str,
-        image_id: str | None,
+        image_id: str,
         brand: str = "",
         notes: str = "",
     ) -> None:
