@@ -1,5 +1,6 @@
 [project]
 name = "racket-tracker"
+version = "0.1.0"
 authors = [
     {name = "Adam Pirog", email = "pirog.adam@gmail.com"},
 ]
@@ -7,7 +8,6 @@ description = "Keep track of your tennis gear!"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-dynamic = ["version"]
 requires-python = ">=3.13"
 dependencies = [
     "flet>=1.0,<2",
@@ -31,8 +31,6 @@ build-backend = "setuptools.build_meta"
 include = ["racket_tracker*"]
 namespaces = false
 
-[tool.setuptools.dynamic]
-version = {attr = "racket_tracker.version.__version__"}
 
 [tool.pytest]
 minversion = "9.0"
@@ -72,7 +70,12 @@ lines-after-imports = 2
 product = "Racket Tracker"
 org = "com.adampirog"
 bundle_id = "com.adampirog.rackettracker"
+build_number = 1
 
 [tool.flet.app]
-path = "racket_tracker"
+path = "."
 module = "main"
+exclude=["tests"]
+
+[tool.flet.android]
+adaptive_icon_background = "#F8FAF8"

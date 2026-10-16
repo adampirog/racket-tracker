@@ -9,7 +9,7 @@ from racket_tracker.racket_images import (
 )
 
 
-ASSETS_DIR = Path(racket_tracker.__file__).parent / "assets"
+ASSETS_DIR = Path(racket_tracker.__file__).parent.parent / "assets"
 
 
 def test_racket_image_catalogue_is_valid() -> None:

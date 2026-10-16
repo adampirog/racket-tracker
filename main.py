@@ -15,10 +15,7 @@ def main(page: ft.Page) -> None:
     if os.getenv("RACKET_TRACKER_DEMO_DATA") == "1":
         seed_demo_data(database)
 
-    app = RacketTrackerApp(
-        page=page,
-        repository=RacketRepository(database),
-    )
+    app = RacketTrackerApp(page=page, repository=RacketRepository(database))
     app.mount()
 
 
