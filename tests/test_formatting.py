@@ -2,7 +2,12 @@ from datetime import date
 
 import pytest
 
-from racket_tracker.formatting import format_date, format_relative_date, normalize_gauge
+from racket_tracker.formatting import (
+    format_date,
+    format_gauge,
+    format_relative_date,
+    normalize_gauge,
+)
 
 
 def test_format_date() -> None:
@@ -40,6 +45,15 @@ def test_normalize_gauge(value: str, expected: str) -> None:
     assert normalize_gauge(value) == expected
 
 
-def test_invalid_gauge() -> None:
+@pytest.mark.parametrize("value", ["medium", "0", "-1.25", "NaN", "Infinity"])
+def test_invalid_gauge(value: str) -> None:
     with pytest.raises(ValueError):
-        normalize_gauge("medium")
+        normalize_gauge(value)
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [("1.25", "1.25 mm"), ("1,25", "1.25 mm"), ("legacy", "legacy mm"), ("", "")],
+)
+def test_format_gauge(value: str, expected: str) -> None:
+    assert format_gauge(value) == expected

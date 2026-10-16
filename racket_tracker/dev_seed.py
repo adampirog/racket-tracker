@@ -13,31 +13,11 @@ def seed_demo_data(database: Database) -> None:
         if racket_count:
             return
 
-        match_racket = Racket(
-            name="Match racket",
-            brand="Babolat",
-            model="Pure Drive (2021)",
-        )
+        match_racket = Racket(name="Match racket", brand="Babolat", model="Pure Drive (2021)")
+        backup_racket = Racket(name="Backup racket", brand="Babolat", model="Pure Drive (2021)")
+        radical = Racket(name="Radical", brand="Head", model="Radical MP (2023)")
 
-        backup_racket = Racket(
-            name="Backup racket",
-            brand="Babolat",
-            model="Pure Drive (2021)",
-        )
-
-        radical = Racket(
-            name="Radical",
-            brand="Head",
-            model="Radical MP (2023)",
-        )
-
-        session.add_all(
-            [
-                match_racket,
-                backup_racket,
-                radical,
-            ]
-        )
+        session.add_all([match_racket, backup_racket, radical])
 
         session.flush()
 

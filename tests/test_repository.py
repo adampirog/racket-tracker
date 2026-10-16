@@ -1,5 +1,6 @@
 from datetime import date
 
+import pytest
 from sqlalchemy import func, select
 
 from racket_tracker.data.database import Database
@@ -109,3 +110,35 @@ def test_update_racket(repository: RacketRepository) -> None:
         "gravity",
         "Main racket",
     )
+
+
+def test_latest_change_uses_id_as_tiebreaker(repository: RacketRepository) -> None:
+    racket = repository.add(Racket(name="Match", model="Pure Drive"))
+    changed_on = date(2026, 10, 15)
+
+    repository.add_string_change(
+        StringChange(racket_id=racket.id, string="Old string", changed_on=changed_on)
+    )
+    repository.add_string_change(
+        StringChange(racket_id=racket.id, string="New string", changed_on=changed_on)
+    )
+
+    repository.add_grip_change(
+        GripChange(racket_id=racket.id, grip="Old grip", changed_on=changed_on)
+    )
+    repository.add_grip_change(
+        GripChange(racket_id=racket.id, grip="New grip", changed_on=changed_on)
+    )
+
+    loaded = repository.get(racket.id)
+
+    assert loaded is not None
+    assert loaded.current_string is not None
+    assert loaded.current_string.string == "New string"
+    assert loaded.current_grip is not None
+    assert loaded.current_grip.grip == "New grip"
+
+
+def test_update_missing_racket_raises(repository: RacketRepository) -> None:
+    with pytest.raises(LookupError):
+        repository.update(999, name="Missing", model="Missing", image_id="tfight")

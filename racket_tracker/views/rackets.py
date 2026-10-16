@@ -12,6 +12,7 @@ from racket_tracker.theme import (
     PRIMARY_SOFT,
     RACKET_CARD_BG,
     SECONDARY,
+    SECTION_SPACING,
     STRING_ICON_BG,
     SURFACE,
     SURFACE_MUTED,
@@ -56,7 +57,9 @@ def build_rackets_view(
             ]
         )
 
-    return ft.Column(expand=True, scroll=ft.ScrollMode.AUTO, spacing=16, controls=controls)
+    return ft.Column(
+        expand=True, scroll=ft.ScrollMode.AUTO, spacing=SECTION_SPACING, controls=controls
+    )
 
 
 def _find_selected_racket(
@@ -136,9 +139,9 @@ def _build_racket_card(*, racket: Racket, on_edit: Callable[[Racket], None]) -> 
     return ft.Container(
         bgcolor=RACKET_CARD_BG,
         border_radius=CARD_RADIUS,
-        padding=16,
+        padding=SECTION_SPACING,
         content=ft.Row(
-            spacing=16,
+            spacing=SECTION_SPACING,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
                 ft.Container(

@@ -31,13 +31,6 @@ class HistoryEntry:
     notes: str
 
 
-def build_history_view(*, rackets: list[Racket]):
-    entries = _build_history_entries(rackets)
-
-    if not entries:
-        return _build_empty_history()
-
-
 def _build_history_entries(rackets: list[Racket]) -> list[HistoryEntry]:
     entries: list[HistoryEntry] = []
 
@@ -158,5 +151,24 @@ def _build_empty_history() -> ft.Control:
                     ],
                 ),
             ),
+        ],
+    )
+
+
+def build_history_view(*, rackets: list[Racket]) -> ft.Control:
+    entries = _build_history_entries(rackets)
+
+    if not entries:
+        return _build_empty_history()
+
+    return ft.Column(
+        expand=True,
+        scroll=ft.ScrollMode.AUTO,
+        spacing=12,
+        controls=[
+            ft.Text("History", size=28, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
+            ft.Text("String and grip changes across your rackets.", size=14, color=TEXT_SECONDARY),
+            ft.Container(height=4),
+            *[_build_history_card(entry) for entry in entries],
         ],
     )
