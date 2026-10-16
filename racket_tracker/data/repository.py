@@ -61,7 +61,14 @@ class RacketRepository:
         return change
 
     def update(
-        self, racket_id: int, *, name: str, model: str, brand: str = "", notes: str = ""
+        self,
+        racket_id: int,
+        *,
+        name: str,
+        model: str,
+        image_id: str | None,
+        brand: str = "",
+        notes: str = "",
     ) -> None:
         with self.database.transaction() as session:
             racket = session.get(Racket, racket_id)
@@ -73,3 +80,4 @@ class RacketRepository:
             racket.brand = brand
             racket.model = model
             racket.notes = notes
+            racket.image_id = image_id
