@@ -12,6 +12,7 @@ from .models import Base
 
 
 DATABASE_FILENAME = "racket_tracker.sqlite3"
+SCHEMA_VERSION = 1
 
 
 class Database:
@@ -47,6 +48,20 @@ class Database:
     def transaction(self) -> Iterator[Session]:
         with self._session_factory.begin() as session:
             yield session
+
+    def migrate(self) -> None:
+        with self.engine.begin() as connection:
+            version = connection.exec_driver_sql("PRAGMA user_version").scalar_one()
+
+            if version == 0:
+                Base.metadata.create_all(connection)
+                connection.exec_driver_sql(f"PRAGMA user_version = {SCHEMA_VERSION}")
+                return
+
+            if version > SCHEMA_VERSION:
+                raise RuntimeError(
+                    f"Database schema {version} is newer than supported schema {SCHEMA_VERSION}."
+                )
 
 
 def _configure_sqlite(engine: Engine) -> None:

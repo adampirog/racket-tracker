@@ -1,9 +1,10 @@
 from datetime import date
+from pathlib import Path
 
 import pytest
 from sqlalchemy import func, select
 
-from racket_tracker.data.database import Database
+from racket_tracker.data.database import SCHEMA_VERSION, Database
 from racket_tracker.data.models import GripChange, Racket, StringChange
 from racket_tracker.data.repository import RacketRepository
 
@@ -142,3 +143,39 @@ def test_latest_change_uses_id_as_tiebreaker(repository: RacketRepository) -> No
 def test_update_missing_racket_raises(repository: RacketRepository) -> None:
     with pytest.raises(LookupError):
         repository.update(999, name="Missing", model="Missing", image_id="tfight")
+
+
+def test_database_survives_restart(tmp_path: Path) -> None:
+    path = tmp_path / "racket_tracker.sqlite3"
+
+    first = Database(path)
+    first.create_schema()
+    first_repository = RacketRepository(first)
+
+    racket = first_repository.add(Racket(name="Match racket", model="Pure Drive", image_id="aero"))
+    first_repository.add_string_change(
+        StringChange(racket_id=racket.id, string="RPM Blast", changed_on=date(2026, 10, 16))
+    )
+
+    first.engine.dispose()
+
+    second = Database(path)
+    second.create_schema()
+    second_repository = RacketRepository(second)
+
+    loaded = second_repository.get(racket.id)
+
+    assert loaded is not None
+    assert loaded.name == "Match racket"
+    assert loaded.current_string is not None
+    assert loaded.current_string.string == "RPM Blast"
+
+
+def test_database_is_initialized_at_current_schema(tmp_path: Path) -> None:
+    database = Database(tmp_path / "test.sqlite3")
+    database.migrate()
+
+    with database.engine.connect() as connection:
+        version = connection.exec_driver_sql("PRAGMA user_version").scalar_one()
+
+    assert version == SCHEMA_VERSION

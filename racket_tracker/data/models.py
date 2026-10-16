@@ -6,6 +6,9 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from racket_tracker.racket_images import DEFAULT_RACKET_IMAGE_ID
 
 
+SCHEMA_VERSION = 1
+
+
 class Base(DeclarativeBase):
     pass
 
