@@ -6,13 +6,11 @@ Racket Tracker lets you manage multiple physical rackets, see their current stri
 
 ## Features
 
-- Track multiple rackets, including duplicate models
-- Choose a racket image from the built-in catalogue
-- Record string changes with gauge, date, and notes
+- Track multiple rackets and the setups - grips, strings etc.
+- Record string changes with gauge, tension, date, and notes
 - Record grip changes with color, date, and notes
-- See the current string and grip for each racket
+- Keep track of the setup of your current match racket
 - Browse string and grip changes in a combined history
-- Local SQLite storage with no login or external service required
 
 ## Setup
 
@@ -21,15 +19,6 @@ Requires Python 3.13+.
 ```bash
 git clone https://github.com/adampirog/racket-tracker.git
 cd racket-tracker
-
-python -m venv .venv
-source .venv/bin/activate
-```
-
-On Windows:
-
-```powershell
-.venv\Scripts\activate
 ```
 
 Install the project together with the Flet development/build tooling:
@@ -43,19 +32,13 @@ pip install -e .
 To start with demo data:
 
 ```bash
-RACKET_TRACKER_DEMO_DATA=1 flet run -r racket_tracker/main.py
-```
-
-On Windows PowerShell:
-
-```powershell
-$env:RACKET_TRACKER_DEMO_DATA="1"
-flet run -r racket_tracker/main.py
+RACKET_TRACKER_DEMO_DATA=1 flet run -r main.py
 ```
 
 ## Build for Android
 
-Flet requires JDK 17 and the Android SDK for Android builds. If compatible installations are not available, Flet can set them up during the first build.
+Flet requires JDK 17 and the Android SDK for Android builds. If compatible installations are not available,
+Flet can set them up during the first build.
 
 Build a release APK:
 
@@ -68,31 +51,3 @@ The generated APK is placed under:
 ```text
 build/apk/
 ```
-
-For Google Play distribution, build an Android App Bundle instead:
-
-```bash
-flet build aab
-```
-
-The generated bundle is placed under:
-
-```text
-build/aab/
-```
-
-## Install on an Android device
-
-Enable **Developer options** and **USB debugging** on the device, connect it over USB, and confirm that ADB can see it:
-
-```bash
-adb devices
-```
-
-Install the APK:
-
-```bash
-adb install build/apk/<racket-tracker.apk>
-```
-
-The update must use the same application ID and compatible signing key as the installed version.
