@@ -149,7 +149,7 @@ def test_database_survives_restart(tmp_path: Path) -> None:
     path = tmp_path / "racket_tracker.sqlite3"
 
     first = Database(path)
-    first.create_schema()
+    first.migrate()
     first_repository = RacketRepository(first)
 
     racket = first_repository.add(Racket(name="Match racket", model="Pure Drive", image_id="aero"))
@@ -160,7 +160,7 @@ def test_database_survives_restart(tmp_path: Path) -> None:
     first.engine.dispose()
 
     second = Database(path)
-    second.create_schema()
+    second.migrate()
     second_repository = RacketRepository(second)
 
     loaded = second_repository.get(racket.id)

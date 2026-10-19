@@ -12,7 +12,7 @@ from .models import Base
 
 
 DATABASE_FILENAME = "racket_tracker.sqlite3"
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 1
 
 
 class Database:
@@ -57,22 +57,6 @@ class Database:
                 Base.metadata.create_all(connection)
                 connection.exec_driver_sql(f"PRAGMA user_version = {SCHEMA_VERSION}")
                 return
-
-            if version == 1:
-                connection.exec_driver_sql(
-                    """
-                    ALTER TABLE string_changes
-                    ADD COLUMN mains_tension REAL NOT NULL DEFAULT 22.0
-                    """
-                )
-                connection.exec_driver_sql(
-                    """
-                    ALTER TABLE string_changes
-                    ADD COLUMN crosses_tension REAL NOT NULL DEFAULT 21.0
-                    """
-                )
-                connection.exec_driver_sql("PRAGMA user_version = 2")
-                version = 2
 
             if version != SCHEMA_VERSION:
                 raise RuntimeError(

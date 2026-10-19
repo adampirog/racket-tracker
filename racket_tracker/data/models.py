@@ -50,7 +50,7 @@ class StringChange(Base):
     string: Mapped[str] = mapped_column(String(150))
     gauge: Mapped[float] = mapped_column(Float, nullable=False, default=1.25)
     mains_tension: Mapped[float] = mapped_column(Float, nullable=False, default=22.0)
-    crosses_tension: Mapped[float] = mapped_column(Float, nullable=False, default=21.0)
+    crosses_tension: Mapped[float] = mapped_column(Float, nullable=False, default=22.0)
     changed_on: Mapped[date]
     notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
 

@@ -2,7 +2,12 @@ from datetime import date
 
 import pytest
 
-from racket_tracker.formatting import format_date, format_gauge, format_relative_date
+from racket_tracker.formatting import (
+    format_date,
+    format_gauge,
+    format_relative_date,
+    format_tension_pair,
+)
 
 
 def test_format_date() -> None:
@@ -32,3 +37,14 @@ def test_format_relative_date(value: date, expected: str) -> None:
 )
 def test_format_gauge(value: float, expected: str) -> None:
     assert format_gauge(value) == expected
+
+
+@pytest.mark.parametrize(
+    ("mains", "crosses", "expected"),
+    [
+        (22.0, 21.0, "22/21 kg"),
+        (21.5, 20.5, "21.5/20.5 kg"),
+    ],
+)
+def test_format_tension_pair(mains: float, crosses: float, expected: str) -> None:
+    assert format_tension_pair(mains, crosses) == expected

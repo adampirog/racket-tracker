@@ -27,7 +27,7 @@ class GripChangeFormValues:
 
 
 TENSION_VALUES = tuple(18.0 + index * 0.5 for index in range(21))
-DEFAULT_TENSION = (22.0, 21.0)
+DEFAULT_TENSION = 22.0
 
 GAUGE_VALUES = (1.10, 1.15, 1.20, 1.25, 1.30, 1.35, 1.40)
 DEFAULT_GAUGE = 1.25
@@ -131,8 +131,8 @@ def build_string_change_dialog(
         initial_value=(current.gauge if current is not None else DEFAULT_GAUGE)
     )
 
-    current_mains_tension = current.mains_tension if current is not None else DEFAULT_TENSION[0]
-    current_crosses_tension = current.crosses_tension if current is not None else DEFAULT_TENSION[1]
+    current_mains_tension = current.mains_tension if current is not None else DEFAULT_TENSION
+    current_crosses_tension = current.crosses_tension if current is not None else DEFAULT_TENSION
 
     mains_picker, get_mains_tension = _build_tension_picker(
         label="Mains", initial_value=current_mains_tension
