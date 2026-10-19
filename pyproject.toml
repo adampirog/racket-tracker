@@ -70,7 +70,7 @@ lines-after-imports = 2
 product = "Racket Tracker"
 org = "com.adampirog"
 bundle_id = "com.adampirog.rackettracker"
-build_number = 1
+build_number = 2
 
 [tool.flet.app]
 path = "."

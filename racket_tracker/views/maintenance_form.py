@@ -36,11 +36,9 @@ DEFAULT_GAUGE = 1.25
 def _build_gauge_picker(*, initial_value: float) -> tuple[ft.Control, Callable[[], float]]:
     selected_value = initial_value if initial_value in GAUGE_VALUES else DEFAULT_GAUGE
 
-    def select_gauge(
-        event: ft.Event[ft.CupertinoPicker],
-    ) -> None:
+    def select_gauge(event: ft.Event[ft.CupertinoPicker]) -> None:
         nonlocal selected_value
-        selected_value = GAUGE_VALUES[int(event.data)]
+        selected_value = GAUGE_VALUES[event.control.selected_index]
 
     picker = ft.CupertinoPicker(
         controls=[
@@ -78,7 +76,7 @@ def _build_tension_picker(
 
     def select_tension(event: ft.Event[ft.CupertinoPicker]) -> None:
         nonlocal selected_value
-        selected_value = TENSION_VALUES[int(event.data)]
+        selected_value = TENSION_VALUES[event.control.selected_index]
 
     picker = ft.CupertinoPicker(
         controls=[
