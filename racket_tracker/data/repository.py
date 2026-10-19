@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -99,3 +101,20 @@ class RacketRepository:
                 raise LookupError(f"Grip change {change_id} does not exist.")
 
             session.delete(change)
+
+    def set_active(self, racket_id: int, *, active_since: date | None = None) -> None:
+        with self.database.transaction() as session:
+            racket = session.get(Racket, racket_id)
+
+            if racket is None:
+                raise LookupError(f"Racket {racket_id} does not exist.")
+
+            statement = select(Racket).where(
+                Racket.active_since.is_not(None), Racket.id != racket_id
+            )
+
+            for active_racket in session.scalars(statement):
+                active_racket.active_since = None
+
+            if racket.active_since is None:
+                racket.active_since = active_since or date.today()

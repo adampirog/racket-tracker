@@ -18,6 +18,7 @@ class Racket(Base):
     model: Mapped[str] = mapped_column(String(100))
     notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
     image_id: Mapped[str] = mapped_column(String(50), nullable=False, default="tfight")
+    active_since: Mapped[date | None]
 
     string_changes: Mapped[list["StringChange"]] = relationship(
         back_populates="racket",

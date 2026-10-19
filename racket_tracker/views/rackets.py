@@ -37,6 +37,7 @@ def build_rackets_view(
     on_string_change: Callable[[Racket], None],
     on_grip_change: Callable[[Racket], None],
     on_settings: Callable[[], None],
+    on_set_active: Callable[[int], None],
 ) -> ft.Control:
 
     controls: list[ft.Control] = [
@@ -56,7 +57,9 @@ def build_rackets_view(
     else:
         controls.extend(
             [
-                _build_racket_card(racket=selected_racket, on_edit=on_edit_racket),
+                _build_racket_card(
+                    racket=selected_racket, on_edit=on_edit_racket, on_set_active=on_set_active
+                ),
                 _build_string_card(selected_racket, on_click=on_string_change),
                 _build_grip_card(selected_racket, on_click=on_grip_change),
             ]
@@ -123,27 +126,61 @@ def _build_racket_selector(
 def _build_racket_chip(
     *, racket: Racket, selected: bool, on_select_racket: Callable[[int], None]
 ) -> ft.Control:
+    active = racket.active_since is not None
+
     def handle_select(_: ft.Event[ft.Chip]) -> None:
         if racket.id is not None:
             on_select_racket(racket.id)
 
+    label_controls: list[ft.Control] = []
+
+    if active:
+        label_controls.append(ft.Icon(ft.Icons.CHECK_CIRCLE, size=16, color=PRIMARY))
+
+    label_controls.append(ft.Text(racket.name))
+
     return ft.Chip(
-        label=ft.Text(racket.name),
+        label=ft.Row(tight=True, spacing=5, controls=label_controls),
         selected=selected,
         selected_color=PRIMARY_SOFT,
-        bgcolor=SURFACE_MUTED,
+        bgcolor=PRIMARY_SOFT if active else SURFACE_MUTED,
         show_checkmark=False,
         shape=ft.RoundedRectangleBorder(radius=12),
         on_select=handle_select,
     )
 
 
-def _build_racket_card(*, racket: Racket, on_edit: Callable[[Racket], None]) -> ft.Control:
+def _build_racket_card(
+    *, racket: Racket, on_edit: Callable[[Racket], None], on_set_active: Callable[[int], None]
+) -> ft.Control:
     model_label = f"{racket.brand} {racket.model}" if racket.brand else racket.model
+    is_active = racket.active_since is not None
+
+    if racket.active_since is not None:
+        active_control = ft.Row(
+            tight=True,
+            spacing=6,
+            controls=[
+                ft.Icon(ft.Icons.CHECK_CIRCLE, size=18, color=PRIMARY),
+                ft.Text(
+                    f"Active since {format_relative_date(racket.active_since)}",
+                    size=13,
+                    color=PRIMARY,
+                    weight=ft.FontWeight.BOLD,
+                ),
+            ],
+        )
+    else:
+        active_control = ft.Button(
+            content="Set active",
+            icon=ft.Icons.CHECK_CIRCLE_OUTLINE,
+            on_click=lambda _: on_set_active(racket.id),
+        )
 
     return ft.Container(
         bgcolor=RACKET_CARD_BG,
         border_radius=CARD_RADIUS,
+        border=(ft.Border.all(2, PRIMARY) if is_active else None),
         padding=SECTION_SPACING,
         content=ft.Row(
             spacing=SECTION_SPACING,
@@ -168,8 +205,10 @@ def _build_racket_card(*, racket: Racket, on_edit: Callable[[Racket], None]) -> 
                         ft.Text(model_label, size=14, color=TEXT_SECONDARY),
                         ft.Container(height=14),
                         ft.Row(
-                            alignment=ft.MainAxisAlignment.END,
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
                             controls=[
+                                active_control,
                                 ft.IconButton(
                                     icon=ft.Icons.EDIT_OUTLINED,
                                     tooltip="Edit racket",

@@ -206,3 +206,46 @@ def test_delete_history_entry(repository: RacketRepository) -> None:
     assert loaded is not None
     assert len(loaded.string_changes) == 1
     assert loaded.string_changes[0].string == "RPM Blast"
+
+
+def test_setting_active_racket_deactivates_previous(repository: RacketRepository) -> None:
+    first = repository.add(Racket(name="First", model="TFight"))
+    second = repository.add(Racket(name="Second", model="TFight"))
+
+    repository.set_active(
+        first.id,
+        active_since=date(2026, 10, 1),
+    )
+
+    repository.set_active(
+        second.id,
+        active_since=date(2026, 10, 10),
+    )
+
+    first_loaded = repository.get(first.id)
+    second_loaded = repository.get(second.id)
+
+    assert first_loaded is not None
+    assert second_loaded is not None
+
+    assert first_loaded.active_since is None
+    assert second_loaded.active_since == date(2026, 10, 10)
+
+
+def test_setting_same_racket_active_does_not_reset_date(repository: RacketRepository) -> None:
+    racket = repository.add(Racket(name="Match", model="TFight"))
+
+    repository.set_active(
+        racket.id,
+        active_since=date(2026, 10, 1),
+    )
+
+    repository.set_active(
+        racket.id,
+        active_since=date(2026, 10, 19),
+    )
+
+    loaded = repository.get(racket.id)
+
+    assert loaded is not None
+    assert loaded.active_since == date(2026, 10, 1)

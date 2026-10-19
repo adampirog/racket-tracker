@@ -124,6 +124,16 @@ class RacketTrackerApp:
     # Racket CRUD
     # ------------------------------------------------------------------
 
+    def _set_active_racket(self, racket_id: int) -> None:
+        try:
+            self.repository.set_active(racket_id)
+        except (SQLAlchemyError, LookupError):
+            logger.exception("Failed to set racket %s as active", racket_id)
+            self._show_message("Couldn't set active racket. Please try again.")
+            return
+
+        self._refresh_after_write(preferred_id=racket_id, success_message="Active racket updated.")
+
     def _show_add_racket(self) -> None:
         self.page.show_dialog(
             build_racket_dialog(on_submit=self._add_racket, on_cancel=self._close_dialog)
@@ -338,6 +348,7 @@ class RacketTrackerApp:
             on_edit_racket=self._show_edit_racket,
             on_string_change=self._show_string_change,
             on_grip_change=self._show_grip_change,
+            on_set_active=self._set_active_racket,
             on_settings=lambda: self._show_message("Settings will come later."),
         )
 
