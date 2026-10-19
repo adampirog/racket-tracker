@@ -179,3 +179,30 @@ def test_database_is_initialized_at_current_schema(tmp_path: Path) -> None:
         version = connection.exec_driver_sql("PRAGMA user_version").scalar_one()
 
     assert version == SCHEMA_VERSION
+
+
+def test_delete_history_entry(repository: RacketRepository) -> None:
+    racket = repository.add(Racket(name="Match", model="Pure Drive"))
+
+    old_change = repository.add_string_change(
+        StringChange(
+            racket_id=racket.id,
+            string="Hyper-G",
+            changed_on=date(2026, 9, 1),
+        )
+    )
+    repository.add_string_change(
+        StringChange(
+            racket_id=racket.id,
+            string="RPM Blast",
+            changed_on=date(2026, 10, 1),
+        )
+    )
+
+    repository.delete_string_change(old_change.id)
+
+    loaded = repository.get(racket.id)
+
+    assert loaded is not None
+    assert len(loaded.string_changes) == 1
+    assert loaded.string_changes[0].string == "RPM Blast"

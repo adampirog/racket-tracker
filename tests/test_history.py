@@ -7,7 +7,7 @@ from racket_tracker.views.history import build_history_view
 
 
 def test_history_view_builds_when_empty() -> None:
-    view = build_history_view(rackets=[])
+    view = build_history_view(rackets=[], on_delete=lambda _kind, _record_id: None)
 
     assert isinstance(view, ft.Control)
 
@@ -18,6 +18,6 @@ def test_history_view_builds_with_history() -> None:
         StringChange(racket_id=1, string="RPM Blast", gauge="1.25", changed_on=date(2026, 10, 15))
     )
 
-    view = build_history_view(rackets=[racket])
+    view = build_history_view(rackets=[racket], on_delete=lambda _kind, _record_id: None)
 
     assert isinstance(view, ft.Control)

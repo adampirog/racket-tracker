@@ -210,6 +210,7 @@ def _build_date_field(
         last_date=selected_date,
         help_text="When was it changed?",
         on_change=select_date,
+        locale=ft.Locale("en", "GB"),
     )
 
     field.suffix_icon = ft.IconButton(

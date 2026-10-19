@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
 from typing import Literal
@@ -24,6 +25,7 @@ HistoryKind = Literal["string", "grip"]
 
 @dataclass(frozen=True, slots=True)
 class HistoryEntry:
+    record_id: int
     kind: HistoryKind
     changed_on: date
     racket_name: str
@@ -43,6 +45,7 @@ def _build_history_entries(rackets: list[Racket]) -> list[HistoryEntry]:
 
             entries.append(
                 HistoryEntry(
+                    record_id=change.id,
                     kind="string",
                     changed_on=change.changed_on,
                     racket_name=racket.name,
@@ -59,6 +62,7 @@ def _build_history_entries(rackets: list[Racket]) -> list[HistoryEntry]:
 
             entries.append(
                 HistoryEntry(
+                    record_id=change.id,
                     kind="grip",
                     changed_on=change.changed_on,
                     racket_name=racket.name,
@@ -70,7 +74,11 @@ def _build_history_entries(rackets: list[Racket]) -> list[HistoryEntry]:
     return sorted(entries, key=lambda entry: entry.changed_on, reverse=True)
 
 
-def _build_history_card(entry: HistoryEntry) -> ft.Control:
+def _build_history_card(
+    entry: HistoryEntry,
+    *,
+    on_delete: Callable[[HistoryKind, int], None],
+) -> ft.Control:
     if entry.kind == "string":
         title = "Restrung"
         icon = ft.Icons.REPEAT
@@ -82,12 +90,26 @@ def _build_history_card(entry: HistoryEntry) -> ft.Control:
         icon_bg = GRIP_ICON_BG
         icon_color = SECONDARY
 
-    details: list[ft.Control] = [
+    details = [
         ft.Row(
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            vertical_alignment=ft.CrossAxisAlignment.CENTER,
             controls=[
                 ft.Text(title, size=14, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
-                ft.Text(format_date(entry.changed_on), size=12, color=TEXT_SECONDARY),
+                ft.Row(
+                    tight=True,
+                    spacing=4,
+                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    controls=[
+                        ft.Text(format_date(entry.changed_on), size=12, color=TEXT_SECONDARY),
+                        ft.IconButton(
+                            icon=ft.Icons.DELETE_OUTLINE,
+                            icon_size=18,
+                            tooltip="Delete",
+                            on_click=lambda _: on_delete(entry.kind, entry.record_id),
+                        ),
+                    ],
+                ),
             ],
         ),
         ft.Text(entry.value, size=14, color=TEXT_PRIMARY),
@@ -155,7 +177,11 @@ def _build_empty_history() -> ft.Control:
     )
 
 
-def build_history_view(*, rackets: list[Racket]) -> ft.Control:
+def build_history_view(
+    *,
+    rackets: list[Racket],
+    on_delete: Callable[[HistoryKind, int], None],
+) -> ft.Control:
     entries = _build_history_entries(rackets)
 
     if not entries:
@@ -169,6 +195,23 @@ def build_history_view(*, rackets: list[Racket]) -> ft.Control:
             ft.Text("History", size=28, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
             ft.Text("String and grip changes across your rackets.", size=14, color=TEXT_SECONDARY),
             ft.Container(height=4),
-            *[_build_history_card(entry) for entry in entries],
+            *[_build_history_card(entry, on_delete=on_delete) for entry in entries],
         ],
+    )
+
+
+def build_delete_history_dialog(
+    *, kind: HistoryKind, on_confirm: Callable[[], None], on_cancel: Callable[[], None]
+) -> ft.AlertDialog:
+    record_name = "string change" if kind == "string" else "grip change"
+
+    return ft.AlertDialog(
+        modal=True,
+        title=ft.Text("Delete history entry?"),
+        content=ft.Text(f"This {record_name} will be permanently deleted."),
+        actions=[
+            ft.TextButton(content="Cancel", on_click=lambda _: on_cancel()),
+            ft.Button(content="Delete", on_click=lambda _: on_confirm()),
+        ],
+        actions_alignment=ft.MainAxisAlignment.END,
     )

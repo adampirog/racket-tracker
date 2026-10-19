@@ -13,7 +13,11 @@ from racket_tracker.theme import (
     TEXT_SECONDARY,
     build_theme,
 )
-from racket_tracker.views.history import build_history_view
+from racket_tracker.views.history import (
+    HistoryKind,
+    build_delete_history_dialog,
+    build_history_view,
+)
 from racket_tracker.views.maintenance_form import (
     GripChangeFormValues,
     StringChangeFormValues,
@@ -280,6 +284,33 @@ class RacketTrackerApp:
 
         self._refresh_after_write(preferred_id=racket_id, success_message="Grip change saved.")
 
+    def _show_delete_history_entry(self, kind: HistoryKind, record_id: int) -> None:
+        self.page.show_dialog(
+            build_delete_history_dialog(
+                kind=kind,
+                on_confirm=lambda: self._delete_history_entry(kind, record_id),
+                on_cancel=self._close_dialog,
+            )
+        )
+
+    def _delete_history_entry(self, kind: HistoryKind, record_id: int) -> None:
+        try:
+            if kind == "string":
+                self.repository.delete_string_change(record_id)
+            else:
+                self.repository.delete_grip_change(record_id)
+
+        except (SQLAlchemyError, LookupError):
+            logger.exception("Failed to delete %s history entry %s", kind, record_id)
+            self._show_message("Couldn't delete history entry. Please try again.")
+            return
+
+        self._close_dialog()
+
+        self._refresh_after_write(
+            preferred_id=self.selected_racket_id, success_message="History entry deleted."
+        )
+
     # ------------------------------------------------------------------
     # Rendering
     # ------------------------------------------------------------------
@@ -316,7 +347,9 @@ class RacketTrackerApp:
         )
 
     def _render_history(self) -> None:
-        self.body.content = build_history_view(rackets=self.rackets)
+        self.body.content = build_history_view(
+            rackets=self.rackets, on_delete=self._show_delete_history_entry
+        )
         self.page.floating_action_button = None
 
     def _render_placeholder(self, *, title: str, message: str, icon: ft.IconData) -> None:

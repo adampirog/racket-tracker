@@ -81,3 +81,21 @@ class RacketRepository:
             racket.model = model
             racket.notes = notes
             racket.image_id = image_id
+
+    def delete_string_change(self, change_id: int) -> None:
+        with self.database.transaction() as session:
+            change = session.get(StringChange, change_id)
+
+            if change is None:
+                raise LookupError(f"String change {change_id} does not exist.")
+
+            session.delete(change)
+
+    def delete_grip_change(self, change_id: int) -> None:
+        with self.database.transaction() as session:
+            change = session.get(GripChange, change_id)
+
+            if change is None:
+                raise LookupError(f"Grip change {change_id} does not exist.")
+
+            session.delete(change)
