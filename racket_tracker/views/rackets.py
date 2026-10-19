@@ -143,7 +143,7 @@ def _build_racket_chip(
         label=ft.Row(tight=True, spacing=5, controls=label_controls),
         selected=selected,
         selected_color=PRIMARY_SOFT,
-        bgcolor=PRIMARY_SOFT if active else SURFACE_MUTED,
+        bgcolor=SURFACE_MUTED,
         show_checkmark=False,
         shape=ft.RoundedRectangleBorder(radius=12),
         on_select=handle_select,
