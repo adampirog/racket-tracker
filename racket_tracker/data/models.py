@@ -48,7 +48,7 @@ class StringChange(Base):
     racket_id: Mapped[int] = mapped_column(ForeignKey("rackets.id", ondelete="CASCADE"), index=True)
 
     string: Mapped[str] = mapped_column(String(150))
-    gauge: Mapped[str] = mapped_column(String(30), nullable=False, default="")
+    gauge: Mapped[float] = mapped_column(Float, nullable=False, default=1.25)
     mains_tension: Mapped[float] = mapped_column(Float, nullable=False, default=22.0)
     crosses_tension: Mapped[float] = mapped_column(Float, nullable=False, default=21.0)
     changed_on: Mapped[date]

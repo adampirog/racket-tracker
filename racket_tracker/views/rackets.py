@@ -199,9 +199,7 @@ def _build_string_card(racket: Racket, *, on_click: Callable[[Racket], None]) ->
 
     value = change.string
 
-    if change.gauge:
-        value = f"{value} {format_gauge(change.gauge)}"
-
+    value = f"{change.string} {format_gauge(change.gauge)}"
     value = f"{value} · {format_tension_pair(change.mains_tension, change.crosses_tension)}"
 
     return _build_equipment_card(

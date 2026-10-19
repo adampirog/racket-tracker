@@ -40,8 +40,7 @@ def _build_history_entries(rackets: list[Racket]) -> list[HistoryEntry]:
         for change in racket.string_changes:
             value = change.string
 
-            if change.gauge:
-                value = f"{value} {format_gauge(change.gauge)}"
+            value = f"{change.string} {format_gauge(change.gauge)}"
             value = f"{value} · {format_tension_pair(change.mains_tension, change.crosses_tension)}"
 
             entries.append(

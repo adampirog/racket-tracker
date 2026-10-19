@@ -15,7 +15,14 @@ def test_history_view_builds_when_empty() -> None:
 def test_history_view_builds_with_history() -> None:
     racket = Racket(id=1, name="Match racket", model="Pure Drive")
     racket.string_changes.append(
-        StringChange(racket_id=1, string="RPM Blast", gauge="1.25", changed_on=date(2026, 10, 15))
+        StringChange(
+            racket_id=1,
+            string="RPM Blast",
+            gauge=1.25,
+            changed_on=date(2026, 10, 15),
+            mains_tension=21.0,
+            crosses_tension=22.0,
+        )
     )
 
     view = build_history_view(rackets=[racket], on_delete=lambda _kind, _record_id: None)
