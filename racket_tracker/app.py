@@ -241,6 +241,8 @@ class RacketTrackerApp:
                     racket_id=racket_id,
                     string=values.string,
                     gauge=values.gauge,
+                    mains_tension=values.mains_tension,
+                    crosses_tension=values.crosses_tension,
                     changed_on=values.changed_on,
                     notes=values.notes,
                 )

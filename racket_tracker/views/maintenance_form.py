@@ -12,6 +12,8 @@ from racket_tracker.formatting import format_date, normalize_gauge
 class StringChangeFormValues:
     string: str
     gauge: str
+    mains_tension: float
+    crosses_tension: float
     changed_on: date
     notes: str
 
@@ -22,6 +24,47 @@ class GripChangeFormValues:
     color: str
     changed_on: date
     notes: str
+
+
+TENSION_VALUES = tuple(18.0 + index * 0.5 for index in range(21))
+DEFAULT_TENSION = (22.0, 21.0)
+
+
+def _build_tension_picker(
+    *, label: str, initial_value: float
+) -> tuple[ft.Control, Callable[[], float]]:
+    selected_value = initial_value if initial_value in TENSION_VALUES else DEFAULT_TENSION
+
+    def select_tension(event: ft.Event[ft.CupertinoPicker]) -> None:
+        nonlocal selected_value
+        selected_value = TENSION_VALUES[int(event.data)]
+
+    picker = ft.CupertinoPicker(
+        controls=[
+            ft.Text(f"{value:g}", text_align=ft.TextAlign.CENTER) for value in TENSION_VALUES
+        ],
+        selected_index=TENSION_VALUES.index(selected_value),
+        item_extent=36,
+        magnification=1.15,
+        use_magnifier=True,
+        on_change=select_tension,
+    )
+
+    return (
+        ft.Column(
+            expand=True,
+            spacing=4,
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            controls=[
+                ft.Text(label, size=13),
+                ft.Container(
+                    height=120,
+                    content=picker,
+                ),
+            ],
+        ),
+        lambda: selected_value,
+    )
 
 
 def build_string_change_dialog(
@@ -50,6 +93,24 @@ def build_string_change_dialog(
         suffix="mm",
         max_length=10,
         autocorrect=False,
+    )
+    current_mains_tension = current.mains_tension if current is not None else DEFAULT_TENSION[0]
+    current_crosses_tension = current.crosses_tension if current is not None else DEFAULT_TENSION[1]
+
+    mains_picker, get_mains_tension = _build_tension_picker(
+        label="Mains", initial_value=current_mains_tension
+    )
+
+    crosses_picker, get_crosses_tension = _build_tension_picker(
+        label="Crosses", initial_value=current_crosses_tension
+    )
+
+    tension_picker = ft.Column(
+        spacing=4,
+        controls=[
+            ft.Text("Tension (kg)", size=13, weight=ft.FontWeight.BOLD),
+            ft.Row(spacing=12, controls=[mains_picker, crosses_picker]),
+        ],
     )
 
     date_field, get_date = _build_date_field(
@@ -82,13 +143,15 @@ def build_string_change_dialog(
                 gauge=gauge_value,
                 changed_on=get_date(),
                 notes=_text(notes.value),
+                mains_tension=get_mains_tension(),
+                crosses_tension=get_crosses_tension(),
             )
         )
 
     return _build_dialog(
         title="Log string change",
         racket_name=racket.name,
-        controls=[string, gauge, date_field, notes],
+        controls=[string, gauge, tension_picker, date_field, notes],
         on_submit=submit,
         on_cancel=on_cancel,
     )

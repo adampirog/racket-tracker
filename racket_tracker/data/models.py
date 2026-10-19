@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import Float, ForeignKey, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -49,6 +49,8 @@ class StringChange(Base):
 
     string: Mapped[str] = mapped_column(String(150))
     gauge: Mapped[str] = mapped_column(String(30), nullable=False, default="")
+    mains_tension: Mapped[float] = mapped_column(Float, nullable=False, default=22.0)
+    crosses_tension: Mapped[float] = mapped_column(Float, nullable=False, default=21.0)
     changed_on: Mapped[date]
     notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
 

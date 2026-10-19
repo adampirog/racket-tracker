@@ -2,6 +2,10 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 
 
+def format_tension_pair(mains: float, crosses: float) -> str:
+    return f"{mains:g}/{crosses:g} kg"
+
+
 def format_date(value: date) -> str:
     return value.strftime("%d %b %Y").lstrip("0")
 

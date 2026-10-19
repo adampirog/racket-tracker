@@ -6,7 +6,7 @@ from typing import Literal
 import flet as ft
 
 from racket_tracker.data.models import Racket
-from racket_tracker.formatting import format_date, format_gauge
+from racket_tracker.formatting import format_date, format_gauge, format_tension_pair
 from racket_tracker.theme import (
     CARD_RADIUS,
     GRIP_ICON_BG,
@@ -42,6 +42,7 @@ def _build_history_entries(rackets: list[Racket]) -> list[HistoryEntry]:
 
             if change.gauge:
                 value = f"{value} {format_gauge(change.gauge)}"
+            value = f"{value} · {format_tension_pair(change.mains_tension, change.crosses_tension)}"
 
             entries.append(
                 HistoryEntry(
