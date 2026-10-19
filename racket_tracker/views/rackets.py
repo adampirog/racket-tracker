@@ -236,8 +236,8 @@ def _build_string_card(racket: Racket, *, on_click: Callable[[Racket], None]) ->
             on_click=lambda: on_click(racket),
         )
 
-    value = f"{change.string} {format_gauge(change.gauge)}"
-    value = f"{value} · {format_tension_pair(change.mains_tension, change.crosses_tension)}"
+    value = f"{change.string} ({format_gauge(change.gauge)})\n"
+    value += format_tension_pair(change.mains_tension, change.crosses_tension)
 
     return _build_equipment_card(
         title="Strings",
