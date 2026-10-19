@@ -277,9 +277,7 @@ def _build_date_field(
 
     field = ft.TextField(label="Date", value=format_date(selected_date), read_only=True)
 
-    def select_date(
-        event: ft.Event[ft.DatePicker],
-    ) -> None:
+    def select_date(event: ft.Event[ft.DatePicker]) -> None:
         nonlocal selected_date
 
         value = event.control.value
@@ -293,7 +291,6 @@ def _build_date_field(
     picker = ft.DatePicker(
         value=selected_date,
         current_date=selected_date,
-        last_date=selected_date,
         help_text="When was it changed?",
         on_change=select_date,
         locale=ft.Locale("en", "GB"),
