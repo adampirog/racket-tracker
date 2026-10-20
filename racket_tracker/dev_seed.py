@@ -30,7 +30,7 @@ def seed_demo_data(database: Database) -> None:
                 StringChange(
                     racket_id=match_racket.id,
                     string="Babolat RPM Blast",
-                    gauge="1.25",
+                    gauge=1.25,
                     changed_on=date(2026, 10, 8),
                 ),
                 GripChange(
@@ -42,7 +42,7 @@ def seed_demo_data(database: Database) -> None:
                 StringChange(
                     racket_id=backup_racket.id,
                     string="Head Lynx Tour",
-                    gauge="1.25",
+                    gauge=1.25,
                     changed_on=date(2026, 9, 15),
                 ),
             ]

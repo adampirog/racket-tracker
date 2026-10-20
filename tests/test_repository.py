@@ -149,7 +149,7 @@ def test_database_survives_restart(tmp_path: Path) -> None:
     path = tmp_path / "racket_tracker.sqlite3"
 
     first = Database(path)
-    first.create_schema()
+    first.migrate()
     first_repository = RacketRepository(first)
 
     racket = first_repository.add(Racket(name="Match racket", model="Pure Drive", image_id="aero"))
@@ -160,7 +160,7 @@ def test_database_survives_restart(tmp_path: Path) -> None:
     first.engine.dispose()
 
     second = Database(path)
-    second.create_schema()
+    second.migrate()
     second_repository = RacketRepository(second)
 
     loaded = second_repository.get(racket.id)
@@ -179,3 +179,73 @@ def test_database_is_initialized_at_current_schema(tmp_path: Path) -> None:
         version = connection.exec_driver_sql("PRAGMA user_version").scalar_one()
 
     assert version == SCHEMA_VERSION
+
+
+def test_delete_history_entry(repository: RacketRepository) -> None:
+    racket = repository.add(Racket(name="Match", model="Pure Drive"))
+
+    old_change = repository.add_string_change(
+        StringChange(
+            racket_id=racket.id,
+            string="Hyper-G",
+            changed_on=date(2026, 9, 1),
+        )
+    )
+    repository.add_string_change(
+        StringChange(
+            racket_id=racket.id,
+            string="RPM Blast",
+            changed_on=date(2026, 10, 1),
+        )
+    )
+
+    repository.delete_string_change(old_change.id)
+
+    loaded = repository.get(racket.id)
+
+    assert loaded is not None
+    assert len(loaded.string_changes) == 1
+    assert loaded.string_changes[0].string == "RPM Blast"
+
+
+def test_setting_active_racket_deactivates_previous(repository: RacketRepository) -> None:
+    first = repository.add(Racket(name="First", model="TFight"))
+    second = repository.add(Racket(name="Second", model="TFight"))
+
+    repository.set_active(
+        first.id,
+        active_since=date(2026, 10, 1),
+    )
+
+    repository.set_active(
+        second.id,
+        active_since=date(2026, 10, 10),
+    )
+
+    first_loaded = repository.get(first.id)
+    second_loaded = repository.get(second.id)
+
+    assert first_loaded is not None
+    assert second_loaded is not None
+
+    assert first_loaded.active_since is None
+    assert second_loaded.active_since == date(2026, 10, 10)
+
+
+def test_setting_same_racket_active_does_not_reset_date(repository: RacketRepository) -> None:
+    racket = repository.add(Racket(name="Match", model="TFight"))
+
+    repository.set_active(
+        racket.id,
+        active_since=date(2026, 10, 1),
+    )
+
+    repository.set_active(
+        racket.id,
+        active_since=date(2026, 10, 19),
+    )
+
+    loaded = repository.get(racket.id)
+
+    assert loaded is not None
+    assert loaded.active_since == date(2026, 10, 1)

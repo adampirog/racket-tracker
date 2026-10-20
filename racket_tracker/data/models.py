@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import Float, ForeignKey, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -18,6 +18,7 @@ class Racket(Base):
     model: Mapped[str] = mapped_column(String(100))
     notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
     image_id: Mapped[str] = mapped_column(String(50), nullable=False, default="tfight")
+    active_since: Mapped[date | None]
 
     string_changes: Mapped[list["StringChange"]] = relationship(
         back_populates="racket",
@@ -48,7 +49,9 @@ class StringChange(Base):
     racket_id: Mapped[int] = mapped_column(ForeignKey("rackets.id", ondelete="CASCADE"), index=True)
 
     string: Mapped[str] = mapped_column(String(150))
-    gauge: Mapped[str] = mapped_column(String(30), nullable=False, default="")
+    gauge: Mapped[float] = mapped_column(Float, nullable=False, default=1.25)
+    mains_tension: Mapped[float] = mapped_column(Float, nullable=False, default=22.0)
+    crosses_tension: Mapped[float] = mapped_column(Float, nullable=False, default=22.0)
     changed_on: Mapped[date]
     notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
 

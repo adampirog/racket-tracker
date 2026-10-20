@@ -6,7 +6,7 @@ from racket_tracker.formatting import (
     format_date,
     format_gauge,
     format_relative_date,
-    normalize_gauge,
+    format_tension_pair,
 )
 
 
@@ -33,27 +33,18 @@ def test_format_relative_date(value: date, expected: str) -> None:
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [
-        ("1.25", "1.25"),
-        ("1,25", "1.25"),
-        ("1.25 mm", "1.25"),
-        ("1.2", "1.20"),
-        ("", ""),
-    ],
+    [(1.10, "1.10 mm"), (1.25, "1.25 mm"), (1.30, "1.30 mm"), (1.40, "1.40 mm")],
 )
-def test_normalize_gauge(value: str, expected: str) -> None:
-    assert normalize_gauge(value) == expected
-
-
-@pytest.mark.parametrize("value", ["medium", "0", "-1.25", "NaN", "Infinity"])
-def test_invalid_gauge(value: str) -> None:
-    with pytest.raises(ValueError):
-        normalize_gauge(value)
+def test_format_gauge(value: float, expected: str) -> None:
+    assert format_gauge(value) == expected
 
 
 @pytest.mark.parametrize(
-    ("value", "expected"),
-    [("1.25", "1.25 mm"), ("1,25", "1.25 mm"), ("legacy", "legacy mm"), ("", "")],
+    ("mains", "crosses", "expected"),
+    [
+        (22.0, 21.0, "22/21 kg"),
+        (21.5, 20.5, "21.5/20.5 kg"),
+    ],
 )
-def test_format_gauge(value: str, expected: str) -> None:
-    assert format_gauge(value) == expected
+def test_format_tension_pair(mains: float, crosses: float, expected: str) -> None:
+    assert format_tension_pair(mains, crosses) == expected
