@@ -4,6 +4,7 @@ import flet as ft
 
 from racket_tracker.data.models import Racket
 from racket_tracker.formatting import (
+    format_active_duration,
     format_date,
     format_gauge,
     format_relative_date,
@@ -163,7 +164,7 @@ def _build_racket_card(
             controls=[
                 ft.Icon(ft.Icons.CHECK_CIRCLE, size=18, color=PRIMARY),
                 ft.Text(
-                    f"Active since {format_relative_date(racket.active_since)}",
+                    format_active_duration(racket.active_since),
                     size=13,
                     color=PRIMARY,
                     weight=ft.FontWeight.BOLD,
