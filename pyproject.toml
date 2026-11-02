@@ -1,6 +1,6 @@
 [project]
 name = "racket-tracker"
-version = "0.2.0"
+version = "0.3.0"
 authors = [
     {name = "Adam Pirog", email = "pirog.adam@gmail.com"},
 ]
@@ -70,7 +70,7 @@ lines-after-imports = 2
 product = "Racket Tracker"
 org = "com.adampirog"
 bundle_id = "com.adampirog.rackettracker"
-build_number = 2
+build_number = 3
 
 [tool.flet.app]
 path = "."
@@ -79,3 +79,7 @@ exclude=["tests"]
 
 [tool.flet.android]
 adaptive_icon_background = "#F8FAF8"
+
+[tool.flet.android.signing]
+key_store = "/home/apirog/.local/share/android-signing/personal-apps.p12"
+key_alias = "personal-apps"
